@@ -1,7 +1,7 @@
-target/
-tmp/
 *.db
 *.swp
-src/main/resources/props/production.props
-project/boot/
+target/
+tmp/
+mining/target/
+mining/tmp/
 
