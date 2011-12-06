@@ -72,10 +72,19 @@
         </configuration>
         <executions>
           <execution>
+            <id>scala-test-compile</id>
             <goals>
-              <goal>compile</goal>
               <goal>testCompile</goal>
             </goals>
+            <phase>test-compile</phase>
+          </execution>
+          <execution>
+            <id>scala-compile-first</id>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+            <phase>process-resources</phase>
           </execution>
         </executions>
       </plugin>
