@@ -11,6 +11,7 @@
   <inceptionYear>2011</inceptionYear>
   <modules>
     <module>mining</module>
+    <module>util</module>
   </modules>
 
   <properties>

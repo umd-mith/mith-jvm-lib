@@ -4,4 +4,6 @@ target/
 tmp/
 mining/target/
 mining/tmp/
+util/target/
+util/tmp/
 
