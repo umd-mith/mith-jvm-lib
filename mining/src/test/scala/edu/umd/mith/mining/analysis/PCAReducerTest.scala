@@ -17,7 +17,13 @@ class PCAReducerTest extends SpecificationWithJUnit with PCAExperiment {
       this.cov.variance(0) must be ~(0.9655342 +/- this.eps) 
     }
     "approximately match the output of R" in {
-      this.cov.variance(1) must be ~(0.0278173 +/- this.eps) 
+      this.cov.variance(1) must be ~(0.02781734 +/- this.eps) 
+    }
+    "approximately match the output of R" in {
+      this.cov.variance(2) must be ~(0.005799535 +/- this.eps) 
+    }
+    "approximately match the output of R" in {
+      this.cov.variance(3) must be ~(0.000848907 +/- this.eps) 
     }
   }
   "the output of PCA on the covariance matrix" should {
@@ -32,6 +38,12 @@ class PCAReducerTest extends SpecificationWithJUnit with PCAExperiment {
     }
     "approximately match the output of R" in {
       this.cor.variance(1) must be ~(0.2474413 +/- this.eps) 
+    }
+    "approximately match the output of R" in {
+      this.cor.variance(2) must be ~(0.0891408 +/- this.eps) 
+    }
+    "approximately match the output of R" in {
+      this.cor.variance(3) must be ~(0.04335752 +/- this.eps) 
     }
   }
 }
