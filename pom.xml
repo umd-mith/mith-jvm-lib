@@ -4,34 +4,54 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.umd.mith</groupId>
-  <artifactId>mining</artifactId>
+  <artifactId>lib</artifactId>
   <version>0.0.1</version>
-  <name>MITH Data Mining Utilities</name>
+  <packaging>pom</packaging>
+  <name>MITH Libraries and Utilities</name>
   <inceptionYear>2011</inceptionYear>
-  <parent>
-    <groupId>edu.umd.mith</groupId>
-    <artifactId>lib</artifactId>
-    <version>0.0.1</version>
-  </parent>
+  <modules>
+    <module>mining</module>
+  </modules>
+
+  <properties>
+    <scala.version>2.9.1</scala.version>
+    <liftweb.version>2.4-M5</liftweb.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>scala-tools.releases</id>
+      <name>Scala-Tools Dependencies Repository for Releases</name>
+      <url>http://scala-tools.org/repo-releases</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>scala-tools.releases</id>
+      <name>Scala-Tools Plugins Repository for Releases</name>
+      <url>http://scala-tools.org/repo-releases</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <dependencies>
     <dependency>
-      <groupId>colt</groupId>
-      <artifactId>colt</artifactId>
-      <version>1.2.0</version>
-    </dependency>
-    <!--<dependency>
-      <groupId>cc.mallet</groupId>
-      <artifactId>mallet-deps</artifactId>
-      <version>2.0.6</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>cc.mallet</groupId>
-      <artifactId>mallet</artifactId>
-      <version>2.0.6</version>
-    </dependency>-->
+      <groupId>org.specs2</groupId>
+      <artifactId>specs2_${scala.version}</artifactId>
+      <version>1.6.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
-  <!--<build>
+  <build>
     <sourceDirectory>src/main/scala</sourceDirectory>
     <testSourceDirectory>src/test/scala</testSourceDirectory>
     <plugins>
@@ -86,11 +106,10 @@
           <charset>${project.build.sourceEncoding}</charset>
           <jvmArgs>
             <jvmArg>-Xmx1024m</jvmArg>
-            <jvmArg>-DpackageLinkDefs=file://${project.build.directory}/packageLinkDefs.properties</jvmArg>
           </jvmArgs>
         </configuration>
       </plugin>
     </plugins>
-  </reporting>-->
+  </reporting>
 </project>
 
