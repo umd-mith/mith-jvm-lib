@@ -4,6 +4,8 @@ target/
 tmp/
 mining/target/
 mining/tmp/
+tei-maven-plugin/target/
+tei-maven-plugin/tmp/
 util/target/
 util/tmp/
 

@@ -10,8 +10,9 @@
   <name>MITH Libraries and Utilities</name>
   <inceptionYear>2011</inceptionYear>
   <modules>
-    <module>mining</module>
     <module>util</module>
+    <module>mining</module>
+    <module>tei-maven-plugin</module>
   </modules>
 
   <properties>
