@@ -13,5 +13,13 @@
     <artifactId>lib</artifactId>
     <version>0.0.1</version>
   </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.5</version>                  
+    </dependency>
+  </dependencies>
 </project>
 
