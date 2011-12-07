@@ -9,6 +9,34 @@
   <packaging>pom</packaging>
   <name>MITH Libraries and Utilities</name>
   <inceptionYear>2011</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Maryland Institute for Technology in the Humanities</name>
+    <url>http://mith.umd.edu/</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <id>trbrown</id>
+      <name>Travis Brown</name>
+      <email>trbrown@umd.edu</email>
+      <organization>Maryland Institute for Technology in the Humanities</organization>
+      <organizationUrl>http://mith.umd.edu/</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+    </developer>
+  </developers>
+
   <modules>
     <module>util</module>
     <module>mining</module>
@@ -105,8 +133,38 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.0-beta-3</version>
+        <configuration>
+          <projectName>${project.name}: ${project.description}</projectName>
+          <licenseName>apache_v2</licenseName>
+          <canUpdateDescription>true</canUpdateDescription>
+          <extraExtensions>
+            <scala>java</scala>
+          </extraExtensions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>license-headers</id>
+            <goals>
+              <goal>update-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+          <execution>
+            <id>license-project</id>
+            <goals>
+              <goal>update-project-license</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+
   <reporting>
     <plugins>
       <plugin>
