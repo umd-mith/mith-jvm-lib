@@ -138,9 +138,7 @@
         <artifactId>license-maven-plugin</artifactId>
         <version>1.0-beta-3</version>
         <configuration>
-          <projectName>${project.name}: ${project.description}</projectName>
           <licenseName>apache_v2</licenseName>
-          <canUpdateDescription>true</canUpdateDescription>
           <extraExtensions>
             <scala>java</scala>
           </extraExtensions>

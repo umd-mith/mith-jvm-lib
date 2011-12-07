@@ -7,12 +7,18 @@
   <artifactId>mining</artifactId>
   <version>0.0.1</version>
   <name>MITH Data Mining Utilities</name>
+  <description>
+    This project contains utilities that support data and text mining
+    applications and experiments at MITH.
+  </description>
   <inceptionYear>2011</inceptionYear>
+
   <parent>
     <groupId>edu.umd.mith</groupId>
     <artifactId>lib</artifactId>
     <version>0.0.1</version>
   </parent>
+
   <dependencies>
     <dependency>
       <groupId>colt</groupId>
