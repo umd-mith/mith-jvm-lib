@@ -5,60 +5,57 @@ import scala.io.Source
 import org.specs2.mutable._
 import org.specs2.specification.Scope
 
+import edu.umd.mith.mining.DoubleSeqMatchers
+
 class PCAReducerTest extends SpecificationWithJUnit with PCAExperiment {
   "the output of PCA on the covariance matrix" should {
     "have 50 data points" in {
       this.cov.data.size must_== 50
     }
     "have 4 dimensions" in {
-      this.cov.data.size must_== 50
+      this.cov.dims must_== 4
     }
     "approximately match the variance output of R" in {
-      this.cov.variance(0) must be ~(0.9655342 +/- this.eps) 
-      this.cov.variance(1) must be ~(0.02781734 +/- this.eps) 
-      this.cov.variance(2) must be ~(0.005799535 +/- this.eps) 
-      this.cov.variance(3) must be ~(0.000848907 +/- this.eps) 
+      this.cov.variance.toSeq must ~= (
+        0.9655342, 0.02781734, 0.005799535, 0.000848907
+      )
     }
     "approximately match the loadings output of R" in {
       // TODO: Determine why the sign is the opposite of R's.
-      this.cov.loadings(0)(0) must be ~(0.04170432 +/- this.eps)
-      this.cov.loadings(0)(1) must be ~(0.99522128 +/- this.eps) 
-      this.cov.loadings(0)(2) must be ~(0.04633575 +/- this.eps) 
-      this.cov.loadings(0)(3) must be ~(0.07515550 +/- this.eps) 
-      this.cov.loadings(1)(0) must be ~(-0.04482166 +/- this.eps) 
-      this.cov.loadings(1)(1) must be ~(-0.05876003 +/- this.eps) 
-      this.cov.loadings(1)(2) must be ~(0.97685748 +/- this.eps) 
-      this.cov.loadings(1)(3) must be ~(0.20071807 +/- this.eps) 
+
+      this.cov.loadings(0).toSeq must ~= (
+        0.04170432, 0.99522128, 0.04633575, 0.07515550
+      )
+      this.cov.loadings(1).toSeq must ~= (
+        -0.04482166, -0.05876003, 0.97685748, 0.20071807
+      ) 
     }
   }
-  "the output of PCA on the covariance matrix" should {
+  "the output of PCA on the correlation matrix" should {
     "have 50 data points" in {
       this.cor.data.size must_== 50
     }
     "have 4 dimensions" in {
-      this.cor.data.size must_== 50
+      this.cor.dims must_== 4
     }
     "approximately match the variance output of R" in {
-      this.cor.variance(0) must be ~(0.6200604 +/- this.eps) 
-      this.cor.variance(1) must be ~(0.2474413 +/- this.eps) 
-      this.cor.variance(2) must be ~(0.0891408 +/- this.eps) 
-      this.cor.variance(3) must be ~(0.04335752 +/- this.eps) 
+      this.cor.variance.toSeq must ~= (
+        0.6200604, 0.2474413, 0.0891408, 0.04335752
+      )
     }
     "approximately match the loadings output of R" in {
       // TODO: Determine why the sign is the opposite of R's.
-      this.cor.loadings(0)(0) must be ~(0.5358995 +/- this.eps) 
-      this.cor.loadings(0)(1) must be ~(0.5831836 +/- this.eps) 
-      this.cor.loadings(0)(2) must be ~(0.2781909 +/- this.eps) 
-      this.cor.loadings(0)(3) must be ~(0.5434321 +/- this.eps) 
-      this.cor.loadings(1)(0) must be ~(-0.4181809 +/- this.eps) 
-      this.cor.loadings(1)(1) must be ~(-0.1879856 +/- this.eps) 
-      this.cor.loadings(1)(2) must be ~(0.8728062 +/- this.eps) 
-      this.cor.loadings(1)(3) must be ~(0.1673186 +/- this.eps) 
+      this.cor.loadings(0).toSeq must ~= (
+        0.5358995, 0.5831836, 0.2781909, 0.5434321
+      )
+      this.cor.loadings(1).toSeq must ~= (
+        -0.4181809, -0.1879856, 0.8728062, 0.1673186
+      ) 
     }
   }
 }
 
-trait PCAExperiment extends Scope {
+trait PCAExperiment extends Scope with DoubleSeqMatchers {
   val eps = 0.000001
 
   val data: Array[Array[Double]] = Source.fromFile(

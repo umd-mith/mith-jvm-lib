@@ -2,7 +2,7 @@ package edu.umd.mith.mining.analysis
 
 trait Reduced {
   def data: Array[Array[Double]]
-  def dims: Option[Int] = this.data.headOption.map(_.length)
+  def dims: Int = this.data.headOption.map(_.length).getOrElse(0)
 }
 
 trait Reducer[B <: Reduced] {
