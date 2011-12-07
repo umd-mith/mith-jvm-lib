@@ -9,6 +9,7 @@
   <packaging>pom</packaging>
   <name>MITH Libraries and Utilities</name>
   <inceptionYear>2011</inceptionYear>
+
   <scm>
     <url>https://github.com/umd-mith/mith-jvm-lib</url>
     <connection>scm:git:git://github.com/umd-mith/mith-jvm-lib.git</connection>

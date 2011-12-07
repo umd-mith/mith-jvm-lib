@@ -7,7 +7,7 @@
   <artifactId>util</artifactId>
   <version>0.0.1</version>
   <name>MITH General Utilities</name>
-  <inceptionYear>2011</inceptionYear>
+
   <parent>
     <groupId>edu.umd.mith</groupId>
     <artifactId>lib</artifactId>
