@@ -37,8 +37,15 @@ package edu.umd.mith.util.tei;
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
+import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.resource.ResourceManager;
+import org.codehaus.plexus.resource.loader.FileResourceLoader;
 
 /**
  * The OddSchemaMojo is used for transforming an ODD file into schemas and
@@ -49,6 +56,60 @@ import java.io.File;
  */
 public class OddSchemaMojo extends OddSchemaGoal
 {
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    private MavenProject project;
+
+    /**
+     * The system settings for Maven. This is the instance resulting from 
+     * merging global- and user-level settings files.
+     * 
+     * @parameter expression="${settings}"
+     * @required
+     * @readonly
+     */
+    private Settings settings;
+
+    /**
+     * Plexus resource manager used to obtain XSL.
+     * 
+     * @component
+     * @required
+     * @readonly
+     */
+    private ResourceManager locator;
+
+    private boolean locatorInitialized;
+
+    /**
+     * The base directory, relative to which directory names are
+     * interpreted.
+     *
+     * @parameter expression="${basedir}"
+     * @required
+     * @readonly
+     */
+    private File basedir;
+
+    /**
+     * Returns the maven project.
+     */
+    protected MavenProject getProject()
+    {
+        return project;
+    }
+
+    /**
+     * Returns the projects base directory.
+     */
+    protected File getBasedir()
+    {
+        return basedir;
+    }
+
   /**
    * Specifies the ODD file to be transformed.
    * @parameter
@@ -110,5 +171,84 @@ public class OddSchemaMojo extends OddSchemaGoal
   public String getTransformerFactoryClassName() {
     return this.transformerFactory;
   }
+
+    protected ResourceManager getLocator()
+    {
+		if ( !locatorInitialized )
+    	{
+        	locator.addSearchPath( FileResourceLoader.ID, getBasedir().getAbsolutePath() );
+    		locatorInitialized = true;
+    	}
+		return locator;
+	}
+
+    private boolean isEmpty( String value )
+    {
+        return value == null  ||  value.trim().length() == 0;
+    }
+
+    private void setProperty( List pProperties, String pKey, String pValue )
+    {
+        if ( pProperties != null )
+        {
+            pProperties.add( pKey );
+            pProperties.add( System.getProperty( pKey ) );
+        }
+        if ( pValue == null )
+        {
+            System.getProperties().remove( pKey );
+        }
+        else
+        {
+            System.setProperty( pKey, pValue );
+        }
+    }
+
+    /**
+     * Called to install the plugins proxy settings.
+     */
+    protected Object activateProxy()
+    {
+        if ( settings == null )
+        {
+            return null;
+        }
+        final Proxy proxy = settings.getActiveProxy();
+        if ( proxy == null )
+        {
+            return null;
+        }
+
+        final List properties = new ArrayList();
+        final String protocol = proxy.getProtocol();
+        final String prefix = isEmpty( protocol ) ? "" : ( protocol + "." );
+
+        final String host = proxy.getHost();
+        final String hostProperty = prefix + "proxyHost";
+        final String hostValue = isEmpty( host ) ? null : host;
+        setProperty( properties, hostProperty, hostValue );
+        final int port = proxy.getPort();
+        final String portProperty = prefix + "proxyPort";
+        final String portValue = ( port == 0 || port == -1 ) ? null : String.valueOf( port );
+        setProperty( properties, portProperty, portValue );
+        final String username = proxy.getUsername();
+        final String userProperty = prefix + "proxyUser";
+        final String userValue = isEmpty( username ) ? null : username;
+        setProperty( properties, userProperty, userValue );
+        final String password = proxy.getPassword();
+        final String passwordProperty = prefix + "proxyPassword";
+        final String passwordValue = isEmpty( password ) ? null : password;
+        setProperty( properties, passwordProperty, passwordValue );
+        final String nonProxyHosts = proxy.getNonProxyHosts();
+        final String nonProxyHostsProperty = prefix + "nonProxyHosts";
+        final String nonProxyHostsValue = isEmpty( nonProxyHosts ) ? null : nonProxyHosts.replace( ',' , '|' );
+        setProperty( properties, nonProxyHostsProperty, nonProxyHostsValue );
+        getLog().debug( "Proxy settings: " + hostProperty + "=" + hostValue
+                       + ", " + portProperty + "=" + portValue
+                       + ", " + userProperty + "=" + userValue
+                       + ", " + passwordProperty + "=" + (passwordValue == null ? "null" : "<PasswordNotLogged>")
+                       + ", " + nonProxyHostsProperty + "=" + nonProxyHostsValue );
+        return properties;
+    }
 }
 

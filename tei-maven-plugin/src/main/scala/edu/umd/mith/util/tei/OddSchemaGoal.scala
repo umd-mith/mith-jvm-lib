@@ -24,7 +24,7 @@ import javax.xml.transform.Templates
 import javax.xml.transform.TransformerConfigurationException
 import javax.xml.transform.TransformerFactory
 
-import java.lang.reflect.InvocationTargetException
+//import java.lang.reflect.InvocationTargetException
 
 import java.io.File
 import org.codehaus.mojo.xml.Resolver
@@ -46,12 +46,27 @@ abstract class OddSchemaGoal extends TransformingGoal {
         val oldProxySettings = this.activateProxy()
         try {
           val resolver = this.getResolver()
-        
+          val odd2Odd = this.getTransformer(resolver, this.getOdd2Odd)
+          val odd2Rng = this.getTransformer(resolver, this.getOdd2Rng)
+          val odd2Sch = this.getTransformer(resolver, this.getOdd2Sch)
+          val base = this.removeExtension(source.getName)
+          val odd = new File(this.getOutputDir, base + ".simple.odd")
+          val rng = new File(this.getRngOutputDir, base + ".rng")
+          val sch = new File(this.getSchOutputDir, base + ".isosch")
+          this.transform(odd2Odd, source, odd) 
+          this.transform(odd2Rng, odd, rng) 
+          this.transform(odd2Rng, odd, sch) 
         } catch {
           case e => throw e
         } finally this.passivateProxy(oldProxySettings)
       }
     }
+  }
+
+  protected val removeExtension: String => String = {
+    case s: String if s.endsWith(".odd") => s.slice(0, s.length - 4)
+    case s: String if s.endsWith(".odd.xml") => s.slice(0, s.length - 8)
+    case s: String => s
   }
 
   private def getOdd2Odd = this.getSource("/tei/xsl/odds2/odd2odd.xsl")

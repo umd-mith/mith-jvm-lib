@@ -23,11 +23,11 @@
       <artifactId>xml-maven-plugin</artifactId>
       <version>1.0</version>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>net.sourceforge.saxon</groupId>
       <artifactId>saxon</artifactId>
       <version>9.1.0.8</version>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.thaiopensource</groupId>
       <artifactId>trang</artifactId>
@@ -39,5 +39,16 @@
       <version>20091111</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${basedir}/lib</directory>
+      </resource>
+    </resources>
+  </build>
 </project>
 

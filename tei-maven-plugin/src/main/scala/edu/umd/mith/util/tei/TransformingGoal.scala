@@ -21,8 +21,11 @@ package edu.umd.mith.util.tei
 
 import javax.xml.transform.Source
 import javax.xml.transform.Templates
+import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerConfigurationException
 import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.stream.StreamSource
 
 import java.lang.reflect.InvocationTargetException
 
@@ -35,25 +38,30 @@ import org.apache.maven.plugin.MojoFailureException
 abstract class TransformingGoal extends TransformMojo {
   def getTransformerFactoryClassName: String
 
-  protected def getSource(path: String) = new org.xml.sax.InputSource(
-    this.getResource(path).openStream
+  protected def getSource(path: String) = new StreamSource(
+    //this.getResource(path).openStream
+    this.getClass.getResourceAsStream(path)
   )
 
-  protected def getTemplate(r: Resolver, s: Source) = {
+  protected def getTransformer(r: Resolver, s: Source) = {
     val tf = this.getTransformerFactory
     tf.setURIResolver(r)
-    try tf.newTemplates(s)
+    try tf.newTemplates(s).newTransformer
     catch {
       case e: TransformerConfigurationException =>
         throw new MojoExecutionException("Failed to parse stylesheet " + s + ": " + e.getMessage, e)
     }
   }
 
+  protected def transform(t: Transformer, source: File, target: File) {
+    t.transform(new StreamSource(source), new StreamResult(target))
+  }
+
   private def getTransformerFactory = Option(this.getTransformerFactoryClassName) match {
     case None => TransformerFactory.newInstance
     case Some(className: String) => try {
       val classLoader: ClassLoader = Thread.currentThread.getContextClassLoader
-      val method = classOf[TransformerFactory].getDeclaredMethod( "newInstance", classOf[String], classOf[ClassLoader])
+      val method = classOf[TransformerFactory].getDeclaredMethod("newInstance", classOf[String], classOf[ClassLoader])
       method.invoke(null, className, classLoader).asInstanceOf[TransformerFactory]
     } catch {
       case _: NoSuchMethodException =>
