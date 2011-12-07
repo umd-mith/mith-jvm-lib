@@ -38,6 +38,8 @@ package edu.umd.mith.util.tei;
  * under the License.
  */
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +95,12 @@ public class OddSchemaMojo extends OddSchemaGoal
      * @readonly
      */
     private File basedir;
+
+    /** An XML catalog file, or URL, which is being used to resolve
+     * entities.
+     * @parameter
+     */
+    private String[] catalogs;
 
     /**
      * Returns the maven project.
@@ -181,6 +189,30 @@ public class OddSchemaMojo extends OddSchemaGoal
     	}
 		return locator;
 	}
+
+    /**
+     * Returns the plugins catalog files.
+     */
+    protected void setCatalogs( List pCatalogFiles, List pCatalogUrls )
+    {
+        if ( catalogs == null  ||  catalogs.length == 0 )
+        {
+            return;
+        }
+
+        for ( int i = 0; i < catalogs.length; i++ )
+        {
+        	try
+        	{
+        		URL url = new URL( catalogs[i] );
+        		pCatalogUrls.add( url );
+        	}
+        	catch ( MalformedURLException e )
+        	{
+                pCatalogFiles.add( asAbsoluteFile( new File( catalogs[i] ) ) );
+        	}
+        }
+    }
 
     private boolean isEmpty( String value )
     {

@@ -55,7 +55,7 @@ abstract class OddSchemaGoal extends TransformingGoal {
           val sch = new File(this.getSchOutputDir, base + ".isosch")
           this.transform(odd2Odd, source, odd) 
           this.transform(odd2Rng, odd, rng) 
-          this.transform(odd2Rng, odd, sch) 
+          this.transform(odd2Sch, odd, sch) 
         } catch {
           case e => throw e
         } finally this.passivateProxy(oldProxySettings)

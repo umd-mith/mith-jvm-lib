@@ -38,16 +38,19 @@ import org.apache.maven.plugin.MojoFailureException
 abstract class TransformingGoal extends TransformMojo {
   def getTransformerFactoryClassName: String
 
-  protected def getSource(path: String) = new StreamSource(
-    //this.getResource(path).openStream
-    this.getClass.getResourceAsStream(path)
-  )
+  protected def getSource(path: String): Source = {
+    val uri = this.getClass.getResource(path)
+    new StreamSource(uri.toExternalForm)
+  }
 
   protected def getTransformer(r: Resolver, s: Source) = {
     val tf = this.getTransformerFactory
     tf.setURIResolver(r)
-    try tf.newTemplates(s).newTransformer
-    catch {
+    try {
+      val transformer = tf.newTemplates(s).newTransformer
+      transformer.setURIResolver(r)
+      transformer
+    } catch {
       case e: TransformerConfigurationException =>
         throw new MojoExecutionException("Failed to parse stylesheet " + s + ": " + e.getMessage, e)
     }
