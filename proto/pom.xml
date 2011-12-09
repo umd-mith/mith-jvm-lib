@@ -1,10 +1,14 @@
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.umd.mith</groupId>
-  <artifactId>tei-maven-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
+  <artifactId>proto</artifactId>
   <version>0.0.1</version>
-  <name>MITH TEI Maven Plugin</name>
+  <packaging>pom</packaging>
+  <name>MITH Simple Project Prototypei</name>
+  <inceptionYear>2011</inceptionYear>
 
   <parent>
     <groupId>edu.umd.mith</groupId>
@@ -14,7 +18,16 @@
 
   <properties>
     <scala.version>2.9.1</scala.version>
+    <liftweb.version>2.4-M5</liftweb.version>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>scala-tools.releases</id>
+      <name>Scala-Tools Dependencies Repository for Releases</name>
+      <url>http://scala-tools.org/repo-releases</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -23,36 +36,14 @@
       <version>${scala.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>xml-maven-plugin</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.thaiopensource</groupId>
-      <artifactId>trang</artifactId>
-      <version>20091111</version>
-    </dependency>
-    <dependency>
-      <groupId>com.thaiopensource</groupId>
-      <artifactId>jing</artifactId>
-      <version>20091111</version>
+      <groupId>org.specs2</groupId>
+      <artifactId>specs2_${scala.version}</artifactId>
+      <version>1.6.1</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>${basedir}/lib</directory>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.scala-tools</groupId>
@@ -88,5 +79,21 @@
       </plugin>
     </plugins>
   </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.scala-tools</groupId>
+        <artifactId>maven-scala-plugin</artifactId>
+        <version>2.14.3</version>
+        <configuration>
+          <charset>${project.build.sourceEncoding}</charset>
+          <jvmArgs>
+            <jvmArg>-Xmx1024m</jvmArg>
+          </jvmArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
 

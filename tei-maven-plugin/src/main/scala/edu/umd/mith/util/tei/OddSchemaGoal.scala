@@ -69,8 +69,8 @@ abstract class OddSchemaGoal extends TransformingGoal {
     case s: String => s
   }
 
-  private def getOdd2Odd = this.getSource("/tei/xsl/odds2/odd2odd.xsl")
-  private def getOdd2Rng = this.getSource("/tei/xsl/odds2/odd2relax.xsl")
-  private def getOdd2Sch = this.getSource("/tei/xsl/odds2/extract-isosch.xsl")
+  private def getOdd2Odd = this.getSource("/org/tei_c/stylesheets/odds2/odd2odd.xsl")
+  private def getOdd2Rng = this.getSource("/org/tei_c/stylesheets/odds2/odd2relax.xsl")
+  private def getOdd2Sch = this.getSource("/org/tei_c/stylesheets/odds2/extract-isosch.xsl")
 }
 

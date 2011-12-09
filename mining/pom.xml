@@ -16,6 +16,7 @@
     <groupId>edu.umd.mith</groupId>
     <artifactId>lib</artifactId>
     <version>0.0.1</version>
+    <relativePath>../proto/pom.xml</relativePath>
   </parent>
 
   <dependencies>
