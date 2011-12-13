@@ -58,65 +58,42 @@ import org.codehaus.plexus.resource.loader.FileResourceLoader;
  */
 public class OddSchemaMojo extends OddSchemaGoal
 {
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject project;
+  /**
+   * Plexus resource manager used to obtain XSL.
+   * 
+   * @component
+   * @required
+   * @readonly
+   */
+  private ResourceManager locator;
 
-    /**
-     * The system settings for Maven. This is the instance resulting from 
-     * merging global- and user-level settings files.
-     * 
-     * @parameter expression="${settings}"
-     * @required
-     * @readonly
-     */
-    private Settings settings;
+  private boolean locatorInitialized = false;
 
-    /**
-     * Plexus resource manager used to obtain XSL.
-     * 
-     * @component
-     * @required
-     * @readonly
-     */
-    private ResourceManager locator;
-
-    private boolean locatorInitialized;
-
-    /**
-     * The base directory, relative to which directory names are
-     * interpreted.
-     *
-     * @parameter expression="${basedir}"
-     * @required
-     * @readonly
-     */
-    private File basedir;
-
-    /** An XML catalog file, or URL, which is being used to resolve
-     * entities.
-     * @parameter
-     */
-    private String[] catalogs;
-
-    /**
-     * Returns the maven project.
-     */
-    protected MavenProject getProject()
-    {
-        return project;
+  protected ResourceManager getLocator() {
+    if (!this.locatorInitialized) {
+      this.locator.addSearchPath(FileResourceLoader.ID, this.getBasedir().getAbsolutePath());
+      this.locatorInitialized = true;
     }
+    return this.locator;
+  }
 
-    /**
-     * Returns the projects base directory.
-     */
-    protected File getBasedir()
-    {
-        return basedir;
-    }
+  /**
+   * The base directory, relative to which directory names are
+   * interpreted.
+   *
+   * @parameter expression="${basedir}"
+   * @required
+   * @readonly
+   */
+  private File basedir;
+
+  /**
+   * Returns the projects base directory.
+   */
+  protected File getBasedir()
+  {
+    return basedir;
+  }
 
   /**
    * Specifies the ODD file to be transformed.
@@ -179,108 +156,5 @@ public class OddSchemaMojo extends OddSchemaGoal
   public String getTransformerFactoryClassName() {
     return this.transformerFactory;
   }
-
-    protected ResourceManager getLocator()
-    {
-		if ( !locatorInitialized )
-    	{
-        	locator.addSearchPath( FileResourceLoader.ID, getBasedir().getAbsolutePath() );
-    		locatorInitialized = true;
-    	}
-		return locator;
-	}
-
-    /**
-     * Returns the plugins catalog files.
-     */
-    protected void setCatalogs( List pCatalogFiles, List pCatalogUrls )
-    {
-        if ( catalogs == null  ||  catalogs.length == 0 )
-        {
-            return;
-        }
-
-        for ( int i = 0; i < catalogs.length; i++ )
-        {
-        	try
-        	{
-        		URL url = new URL( catalogs[i] );
-        		pCatalogUrls.add( url );
-        	}
-        	catch ( MalformedURLException e )
-        	{
-                pCatalogFiles.add( asAbsoluteFile( new File( catalogs[i] ) ) );
-        	}
-        }
-    }
-
-    private boolean isEmpty( String value )
-    {
-        return value == null  ||  value.trim().length() == 0;
-    }
-
-    private void setProperty( List pProperties, String pKey, String pValue )
-    {
-        if ( pProperties != null )
-        {
-            pProperties.add( pKey );
-            pProperties.add( System.getProperty( pKey ) );
-        }
-        if ( pValue == null )
-        {
-            System.getProperties().remove( pKey );
-        }
-        else
-        {
-            System.setProperty( pKey, pValue );
-        }
-    }
-
-    /**
-     * Called to install the plugins proxy settings.
-     */
-    protected Object activateProxy()
-    {
-        if ( settings == null )
-        {
-            return null;
-        }
-        final Proxy proxy = settings.getActiveProxy();
-        if ( proxy == null )
-        {
-            return null;
-        }
-
-        final List properties = new ArrayList();
-        final String protocol = proxy.getProtocol();
-        final String prefix = isEmpty( protocol ) ? "" : ( protocol + "." );
-
-        final String host = proxy.getHost();
-        final String hostProperty = prefix + "proxyHost";
-        final String hostValue = isEmpty( host ) ? null : host;
-        setProperty( properties, hostProperty, hostValue );
-        final int port = proxy.getPort();
-        final String portProperty = prefix + "proxyPort";
-        final String portValue = ( port == 0 || port == -1 ) ? null : String.valueOf( port );
-        setProperty( properties, portProperty, portValue );
-        final String username = proxy.getUsername();
-        final String userProperty = prefix + "proxyUser";
-        final String userValue = isEmpty( username ) ? null : username;
-        setProperty( properties, userProperty, userValue );
-        final String password = proxy.getPassword();
-        final String passwordProperty = prefix + "proxyPassword";
-        final String passwordValue = isEmpty( password ) ? null : password;
-        setProperty( properties, passwordProperty, passwordValue );
-        final String nonProxyHosts = proxy.getNonProxyHosts();
-        final String nonProxyHostsProperty = prefix + "nonProxyHosts";
-        final String nonProxyHostsValue = isEmpty( nonProxyHosts ) ? null : nonProxyHosts.replace( ',' , '|' );
-        setProperty( properties, nonProxyHostsProperty, nonProxyHostsValue );
-        getLog().debug( "Proxy settings: " + hostProperty + "=" + hostValue
-                       + ", " + portProperty + "=" + portValue
-                       + ", " + userProperty + "=" + userValue
-                       + ", " + passwordProperty + "=" + (passwordValue == null ? "null" : "<PasswordNotLogged>")
-                       + ", " + nonProxyHostsProperty + "=" + nonProxyHostsValue );
-        return properties;
-    }
 }
 
