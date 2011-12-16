@@ -3,12 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>edu.umd.mith</groupId>
   <artifactId>proto</artifactId>
-  <version>0.0.1</version>
   <packaging>pom</packaging>
-  <name>MITH Simple Project Prototypei</name>
-  <inceptionYear>2011</inceptionYear>
+  <name>MITH Simple Project Prototype</name>
+  <description>
+    This project collects dependencies and plugins for Scala projects.
+  </description>
 
   <parent>
     <groupId>edu.umd.mith</groupId>
@@ -34,6 +34,11 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.saxon</groupId>
+      <artifactId>saxon</artifactId>
+      <version>9.1.0.8</version>
     </dependency>
     <dependency>
       <groupId>org.specs2</groupId>
