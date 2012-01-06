@@ -41,7 +41,6 @@ class PCAReducerTest extends SpecificationWithJUnit with PCAExperiment {
     }
     "approximately match the loadings output of R" in {
       // TODO: Determine why the sign is the opposite of R's.
-
       this.cov.loadings(0).toSeq must ~= (
         0.04170432, 0.99522128, 0.04633575, 0.07515550
       )
@@ -75,7 +74,7 @@ class PCAReducerTest extends SpecificationWithJUnit with PCAExperiment {
 }
 
 trait PCAExperiment extends Scope with DoubleSeqMatchers {
-  val eps = 0.000001
+  val eps = 1.0E-6
 
   val data: Array[Array[Double]] = Source.fromFile(
     this.getClass.getResource("USArrests.dat").toURI
