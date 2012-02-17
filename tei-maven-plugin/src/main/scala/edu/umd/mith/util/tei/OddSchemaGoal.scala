@@ -24,8 +24,6 @@ import javax.xml.transform.Templates
 import javax.xml.transform.TransformerConfigurationException
 import javax.xml.transform.TransformerFactory
 
-//import java.lang.reflect.InvocationTargetException
-
 import java.io.File
 import org.codehaus.mojo.xml.Resolver
 import org.codehaus.mojo.xml.TransformMojo

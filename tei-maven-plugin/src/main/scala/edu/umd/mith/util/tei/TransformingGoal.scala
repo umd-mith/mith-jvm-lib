@@ -52,7 +52,9 @@ abstract class TransformingGoal extends TransformMojo {
       transformer
     } catch {
       case e: TransformerConfigurationException =>
-        throw new MojoExecutionException("Failed to parse stylesheet " + s + ": " + e.getMessage, e)
+        throw new MojoExecutionException(
+          "Failed to parse stylesheet %s: %s".format(s, e.getMessage), e
+        )
     }
   }
 
@@ -60,19 +62,30 @@ abstract class TransformingGoal extends TransformMojo {
     t.transform(new StreamSource(source), new StreamResult(target))
   }
 
-  private def getTransformerFactory = Option(this.getTransformerFactoryClassName) match {
-    case None => TransformerFactory.newInstance
-    case Some(className: String) => try {
-      val classLoader: ClassLoader = Thread.currentThread.getContextClassLoader
-      val method = classOf[TransformerFactory].getDeclaredMethod("newInstance", classOf[String], classOf[ClassLoader])
-      method.invoke(null, className, classLoader).asInstanceOf[TransformerFactory]
+  private def getTransformerFactory =
+    Option(this.getTransformerFactoryClassName) match {
+      case None => TransformerFactory.newInstance
+      case Some(className: String) => try {
+        classOf[TransformerFactory].getDeclaredMethod(
+          "newInstance", classOf[String], classOf[ClassLoader]
+        ).invoke(
+          null,
+          className,
+          Thread.currentThread.getContextClassLoader
+        ).asInstanceOf[TransformerFactory]
     } catch {
       case _: NoSuchMethodException =>
-        throw new MojoFailureException("JDK6 required when using transformerFactory parameter.")
+        throw new MojoFailureException(
+          "JDK6 required when using transformerFactory parameter."
+        )
       case e: IllegalAccessException =>
-        throw new MojoExecutionException("Cannot instantiate transformer factory.", e)
+        throw new MojoExecutionException(
+          "Cannot instantiate transformer factory.", e
+        )
       case e: InvocationTargetException =>
-        throw new MojoExecutionException("Cannot instantiate transformer factory.", e)
+        throw new MojoExecutionException(
+          "Cannot instantiate transformer factory.", e
+        )
     }
   }
 }
