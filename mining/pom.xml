@@ -12,24 +12,12 @@
   </description>
   <version>0.0.1</version>
 
-  <!--<properties>
-    <scala.version>2.9.1</scala.version>
-  </properties>-->
-
   <parent>
     <groupId>edu.umd.mith</groupId>
     <artifactId>proto</artifactId>
     <version>0.0.1</version>
     <relativePath>../proto/pom.xml</relativePath>
   </parent>
-
-  <!--<repositories>
-    <repository>
-      <id>scala-tools.releases</id>
-      <name>Scala-Tools Dependencies Repository for Releases</name>
-      <url>http://scala-tools.org/repo-releases</url>
-    </repository>
-  </repositories>-->
 
   <dependencies>
     <dependency>
@@ -41,12 +29,6 @@
       <groupId>cc.mallet</groupId>
       <artifactId>mallet</artifactId>
       <version>2.0.7</version>
-    </dependency>
-    <dependency>
-      <groupId>org.specs2</groupId>
-      <artifactId>specs2_${scala.version}</artifactId>
-      <version>1.6.1</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
