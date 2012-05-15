@@ -5,13 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.umd.mith</groupId>
   <artifactId>util</artifactId>
-  <version>0.0.1</version>
   <name>MITH General Utilities</name>
+  <version>0.0.1-SNAPSHOT</version>
 
   <parent>
     <groupId>edu.umd.mith</groupId>
     <artifactId>proto</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <relativePath>../proto/pom.xml</relativePath>
   </parent>
 
@@ -26,6 +26,16 @@
       <artifactId>commons-io</artifactId>
       <version>2.1</version>                  
     </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>3.8</version>
+    </dependency> 
     <dependency>
       <groupId>net.java.dev.jets3t</groupId>
       <artifactId>jets3t</artifactId>

@@ -10,12 +10,12 @@
     This project contains utilities that support data and text mining
     applications and experiments at MITH.
   </description>
-  <version>0.0.1</version>
+  <version>0.0.1-SNAPSHOT</version>
 
   <parent>
     <groupId>edu.umd.mith</groupId>
     <artifactId>proto</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <relativePath>../proto/pom.xml</relativePath>
   </parent>
 
