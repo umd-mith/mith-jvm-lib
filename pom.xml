@@ -16,6 +16,17 @@
     <developerConnection>scm:git:ssh://git@github.com:umd-mith/mith-jvm-lib.git</developerConnection>
   </scm>
 
+  <distributionManagement>
+    <repository>
+      <id>repo</id>
+      <url>https://umd-mith.github.com/maven-repository/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot-repo</id>
+      <url>https://umd-mith.github.com/maven-repository/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <licenses>
     <license>
       <name>Apache 2</name>

@@ -19,19 +19,16 @@
  */
 package edu.umd.mith.util
 
-object RomanNumeral {
-  private val numerals = List(
-    ("M", 1000), ("CM", 900), ("D",  500), ("CD", 400), ("C",  100),
-    ("XC",  90), ("L",   50), ("XL",  40), ("X",   10), ("IX",   9),
-    ("V",    5), ("IV",   4), ("I",    1)
-  )
+import org.specs2.mutable._
+import java.io.File
 
-  def unapply(s: String): Option[Int] = s.toUpperCase match {
-    case "" => Some(0)
-    case s => numerals.filter { case (n, _) => s.startsWith(n) } match {
-      case (n, i) :: _ => RomanNumeral.unapply(s.substring(n.size)).map(_ + i)
-      case Nil => None
-    }
+class RomanNumeralTest extends SpecificationWithJUnit {
+  "III must be 3" in {
+    RomanNumeral.unapply("III") must beSome(3)
+  }
+
+  "MCMXLIV must be 1944" in {
+    RomanNumeral.unapply("MCMXLIV") must beSome(1944)
   }
 }
 
