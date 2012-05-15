@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.umd.mith</groupId>
   <artifactId>mith</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>MITH Libraries and Utilities</name>
   <inceptionYear>2011</inceptionYear>
@@ -55,6 +55,7 @@
   </developers>
 
   <modules>
+    <module>proto</module>
     <module>util</module>
     <module>mining</module>
     <module>tei-maven-plugin</module>
