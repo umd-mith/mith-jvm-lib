@@ -23,37 +23,38 @@ import java.io.File
 import org.apache.maven.plugin.MojoFailureException
 
 abstract class OddSchemaGoal extends TransformingGoal {
-  def getOdd: File
-  def getOutputDir: File
-  def getRngOutputDir = this.getOutputDir
-  def getSchOutputDir = this.getOutputDir
-  def getForceCreation: Boolean
+  def getOddSpecs: Array[OddSpec]
 
   override def execute() {
-    Option(this.getOdd) match {
-      case None => throw new MojoFailureException("No ODD source configured.")
-      case Some(source) => {
-        val oldProxySettings = this.activateProxy()
-        try {
-          val resolver = this.getResolver()
-          val odd2Odd = this.getTransformer(resolver, this.getOdd2Odd)
-          val odd2Rng = this.getTransformer(resolver, this.getOdd2Rng)
-          val odd2Sch = this.getTransformer(resolver, this.getOdd2Sch)
+    val oldProxySettings = this.activateProxy()
+    try {
+      val resolver = this.getResolver()
+      val odd2Odd = this.getTransformer(resolver, this.getOdd2Odd)
+      val odd2Rng = this.getTransformer(resolver, this.getOdd2Rng)
+      val odd2Sch = this.getTransformer(resolver, this.getOdd2Sch)
+      this.getOddSpecs.foreach { spec =>
+        Option(spec.getSource).map { source =>
           val base = this.removeExtension(source.getName)
-          val odd = new File(this.getOutputDir, base + ".simple.odd")
-          val rng = new File(this.getRngOutputDir, base + ".rng")
-          val sch = new File(this.getSchOutputDir, base + ".isosch")
-          this.transform(odd2Odd, source, odd) 
-          this.transform(odd2Rng, odd, rng) 
+          val outDir = spec.getOutputDir(this.getProject)
+          val rngDir = spec.getRngOutputDir(this.getProject)
+          val schDir = spec.getSchOutputDir(this.getProject)
+          outDir.mkdirs()
+          rngDir.mkdirs()
+          schDir.mkdirs()
+          val odd = new File(outDir, base + ".simple.odd")
+          val rng = new File(rngDir, base + ".rng")
+          val sch = new File(schDir, base + ".isosch")
+          this.transform(odd2Odd, source, odd)
+          this.transform(odd2Rng, odd, rng)
           this.transform(odd2Sch, odd, sch) 
-        } catch {
-          case e => throw e
-        } finally this.passivateProxy(oldProxySettings)
+        }.getOrElse(throw new MojoFailureException("No ODD source configured."))
       }
-    }
+    } catch {
+      case e => throw e
+    } finally this.passivateProxy(oldProxySettings)
   }
 
-  protected val removeExtension: String => String = {
+  private val removeExtension: String => String = {
     case s: String if s.endsWith(".odd") => s.slice(0, s.length - 4)
     case s: String if s.endsWith(".odd.xml") => s.slice(0, s.length - 8)
     case s: String => s
