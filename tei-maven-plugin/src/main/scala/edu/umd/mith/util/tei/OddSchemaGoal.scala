@@ -19,15 +19,7 @@
  */
 package edu.umd.mith.util.tei
 
-import javax.xml.transform.Source
-import javax.xml.transform.Templates
-import javax.xml.transform.TransformerConfigurationException
-import javax.xml.transform.TransformerFactory
-
 import java.io.File
-import org.codehaus.mojo.xml.Resolver
-import org.codehaus.mojo.xml.TransformMojo
-import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
 
 abstract class OddSchemaGoal extends TransformingGoal {

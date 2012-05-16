@@ -7,20 +7,12 @@
 
   <parent>
     <groupId>edu.umd.mith</groupId>
-    <artifactId>mith</artifactId>
+    <artifactId>proto</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../proto/pom.xml</relativePath>
   </parent>
 
-  <properties>
-    <scala.version>2.9.1</scala.version>
-  </properties>
-
   <dependencies>
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
@@ -52,40 +44,6 @@
         <directory>${basedir}/lib</directory>
       </resource>
     </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>2.14.3</version>
-        <configuration>
-          <charset>${project.build.sourceEncoding}</charset>
-          <jvmArgs>
-            <jvmArg>-Xmx1024m</jvmArg>
-          </jvmArgs>
-          <args>
-            <arg>-unchecked</arg>
-            <arg>-deprecation</arg>
-          </args> 
-        </configuration>
-        <executions>
-          <execution>
-            <id>scala-test-compile</id>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-            <phase>test-compile</phase>
-          </execution>
-          <execution>
-            <id>scala-compile-first</id>
-            <goals>
-              <goal>add-source</goal>
-              <goal>compile</goal>
-            </goals>
-            <phase>process-resources</phase>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
   </build>
 </project>
 

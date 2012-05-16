@@ -19,6 +19,8 @@
  */
 package edu.umd.mith.util.tei
 
+import java.io.File
+import java.lang.reflect.InvocationTargetException
 import javax.xml.transform.Source
 import javax.xml.transform.Templates
 import javax.xml.transform.Transformer
@@ -26,10 +28,6 @@ import javax.xml.transform.TransformerConfigurationException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
-
-import java.lang.reflect.InvocationTargetException
-
-import java.io.File
 import org.codehaus.mojo.xml.Resolver
 import org.codehaus.mojo.xml.TransformMojo
 import org.apache.maven.plugin.MojoExecutionException
