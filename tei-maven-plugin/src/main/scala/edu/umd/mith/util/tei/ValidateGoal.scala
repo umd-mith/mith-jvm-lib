@@ -22,27 +22,17 @@ package edu.umd.mith.util.tei
 import java.io.File
 import org.apache.maven.plugin.MojoFailureException
 
-abstract class OddSchemaGoal extends TransformingGoal {
+abstract class ValidateGoal extends TransformingGoal {
   def perform() {
     val resolver = this.getResolver()
-    val odd2Odd = this.getTransformer(resolver, this.getOdd2Odd)
-    val odd2Rng = this.getTransformer(resolver, this.getOdd2Rng)
-    val odd2Sch = this.getTransformer(resolver, this.getOdd2Sch)
     this.getOddSpecs.foreach { spec =>
       Option(spec.getSource).map { source =>
         val base = this.removeExtension(source.getName)
-        val outDir = spec.getOutputDir(this.getProject)
-        val rngDir = spec.getRngOutputDir(this.getProject)
-        val schDir = spec.getSchOutputDir(this.getProject)
-        outDir.mkdirs()
-        rngDir.mkdirs()
-        schDir.mkdirs()
-        val odd = new File(outDir, base + ".simple.odd")
-        val rng = new File(rngDir, base + ".rng")
-        val sch = new File(schDir, base + ".isosch")
-        this.transform(odd2Odd, source, odd)
-        this.transform(odd2Rng, odd, rng)
-        this.transform(odd2Sch, odd, sch)
+        val rng = new File(spec.getRngOutputDir(this.getProject), base + ".rng")
+        val sch = new File(spec.getSchOutputDir(this.getProject), base + ".isosch")
+        Option(spec.getTeiDirs).foreach { _ => ()
+
+        }
       }.getOrElse(throw new MojoFailureException("No ODD source configured."))
     }
   }

@@ -29,9 +29,6 @@ import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 
 trait TransformerHelper {
-  def getSource(path: String): Source =
-    new StreamSource(this.getClass.getResource(path).toExternalForm)
-
   def transform(t: Transformer, source: File, target: File) {
     t.transform(new StreamSource(source), new StreamResult(target))
   }

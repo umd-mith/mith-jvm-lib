@@ -33,7 +33,7 @@ import org.codehaus.mojo.xml.TransformMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
 
-abstract class TransformingGoal extends TransformMojo with TransformerHelper {
+abstract class TransformingGoal extends TransformMojo with TransformerHelper with AbstractTeiGoal {
   def getTransformerFactoryClassName: String
 
   protected def getTransformer(r: Resolver, s: Source) = {
