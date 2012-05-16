@@ -36,6 +36,13 @@ import org.apache.maven.plugin.MojoFailureException
 abstract class TransformingGoal extends TransformMojo with TransformerHelper with AbstractTeiGoal {
   def getTransformerFactoryClassName: String
 
+  override def execute() {
+    val oldProxySettings = this.activateProxy()
+    try this.perform() catch {
+      case e => throw e
+    } finally this.passivateProxy(oldProxySettings)
+  }
+
   protected def getTransformer(r: Resolver, s: Source) = {
     val tf = this.getTransformerFactory
     tf.setURIResolver(r)
