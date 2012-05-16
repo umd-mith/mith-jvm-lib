@@ -22,9 +22,9 @@ package edu.umd.mith.util.tei
 import java.io.File
 import javax.xml.transform.Source
 import javax.xml.transform.stream.StreamSource
-import org.codehaus.mojo.xml.AbstractXmlMojo
+//import org.codehaus.mojo.xml.AbstractXmlMojo
 
-trait AbstractTeiGoal { this: AbstractXmlMojo =>
+trait AbstractTeiGoal {// this: AbstractXmlMojo =>
   def getOddSpecs: Array[OddSpec]
   def perform(): Unit
 
@@ -36,11 +36,6 @@ trait AbstractTeiGoal { this: AbstractXmlMojo =>
     case s: String if s.endsWith(".odd.xml") => s.slice(0, s.length - 8)
     case s: String => s
   }
-
-  protected def getTeiFiles(teiDirs: Option[Array[TeiDir]]): Seq[Seq[File]] =
-    teiDirs.map(_.map(teiDir =>
-      this.getFiles(teiDir.getDir, teiDir.getIncludes, teiDir.getExcludes).toSeq
-    ).toSeq).getOrElse(Seq.empty[Seq[File]])
 
   protected def getOdd2Odd = this.getSource("/org/tei_c/stylesheets/odds2/odd2odd.xsl")
   protected def getOdd2Rng = this.getSource("/org/tei_c/stylesheets/odds2/odd2relax.xsl")

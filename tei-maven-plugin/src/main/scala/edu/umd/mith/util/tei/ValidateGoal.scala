@@ -25,10 +25,17 @@ import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import org.apache.maven.plugin.MojoFailureException
+import org.xml.sax.ErrorHandler
+import org.xml.sax.SAXParseException
+import scala.collection.mutable.Buffer
 
 abstract class ValidateGoal extends TransformingGoal {
   def perform() {
-    val resolver = this.getResolver()
+    System.setProperty(
+      classOf[SchemaFactory].getName() + ":" + XMLConstants.RELAXNG_NS_URI,
+      "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory"
+    )
+
     this.getOddSpecs.foreach { spec =>
       Option(spec.getSource).map { source =>
         val base = this.removeExtension(source.getName)
@@ -39,33 +46,45 @@ abstract class ValidateGoal extends TransformingGoal {
           .newSchema(new StreamSource(rng))
           .newValidator
 
-        this.getTeiFiles(Option(spec.getTeiDirs)).foreach {
-          println(_)
+        val errors = new ValidationErrorHandler
+        rngValidator.setErrorHandler(errors)
+
+        this.getTeiFiles(Option(spec.getTeiDirs)).foreach(_.foreach { file =>
+          println("Validating " + file)
+          try {
+            rngValidator.validate(new StreamSource(file))
+          } catch {
+            case e: Exception => throw(e)
+          }
+        })
+        errors.getAll.foreach { case e: SAXParseException =>
+          println(e.getSystemId + " " + e.getColumnNumber.toString + " " + e.getLineNumber.toString + " " + e.getMessage)
         }
       }.getOrElse(throw new MojoFailureException("No ODD source configured."))
     }
   }
-  /*override def setUp() {
-    System.setProperty(classOf[SchemaFactory].getName() + ":" + XMLConstants.RELAXNG_NS_URI,
-      "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory")
-    XMLUnit.setControlParser("org.apache.xerces.jaxp.DocumentBuilderFactoryImpl")
-    XMLUnit.setSAXParserFactory("org.apache.xerces.jaxp.SAXParserFactoryImpl")
-    XMLUnit.setTransformerFactory("net.sf.saxon.TransformerFactoryImpl")
-    //this.validator.addSchemaSource(new StreamSource(this.getClass.getResourceAsStream(this.schema)))
+}
+
+class ValidationErrorHandler extends ErrorHandler {
+  private val errors = Buffer.empty[SAXParseException]
+  private val fatalErrors = Buffer.empty[SAXParseException]
+  private val warnings = Buffer.empty[SAXParseException]
+
+  def getAll = this.getFatalErrors ++ this.getErrors ++ this.getWarnings
+  def getErrors: Seq[SAXParseException] = this.errors
+  def getFatalErrors: Seq[SAXParseException] = this.fatalErrors
+  def getWarnings: Seq[SAXParseException] = this.warnings
+
+  def error(e: SAXParseException) {
+    this.errors += e
   }
 
-  def testValidate() {
-    this.docs.foreach { doc =>
-      val result = try {
-        Right(this.validator.validate(new StreamSource(this.getClass.getResourceAsStream(doc))))
-      } catch {
-        case e: SAXException => Left(e)
-      }
-      assertTrue(
-        ".%s is not valid: %s".format(doc, result.left.toOption.map(_.getMessage).getOrElse("")),
-        result.isRight
-      )
-    }
-  }*/
+  def fatalError(e: SAXParseException) {
+    this.fatalErrors += e
+  }
+
+  def warning(e: SAXParseException) {
+    this.warnings += e
+  }
 }
 

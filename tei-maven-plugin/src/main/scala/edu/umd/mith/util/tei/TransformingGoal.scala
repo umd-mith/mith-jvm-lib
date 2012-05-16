@@ -43,6 +43,11 @@ abstract class TransformingGoal extends TransformMojo with TransformerHelper wit
     } finally this.passivateProxy(oldProxySettings)
   }
 
+  protected def getTeiFiles(teiDirs: Option[Array[TeiDir]]): Seq[Seq[File]] =
+    teiDirs.map(_.map(teiDir =>
+      this.getFiles(teiDir.getDir, teiDir.getIncludes, teiDir.getExcludes).toSeq.sorted
+    ).toSeq).getOrElse(Seq.empty[Seq[File]])
+
   protected def getTransformer(r: Resolver, s: Source) = {
     val tf = this.getTransformerFactory
     tf.setURIResolver(r)
