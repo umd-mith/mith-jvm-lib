@@ -21,15 +21,16 @@ package edu.umd.mith.util.tei
 
 import java.io.File
 import javax.xml.transform.Source
-import javax.xml.transform.stream.StreamSource
+import javax.xml.transform.sax.SAXSource
+import org.xml.sax.InputSource
 //import org.codehaus.mojo.xml.AbstractXmlMojo
 
 trait AbstractTeiGoal {// this: AbstractXmlMojo =>
   def getOddSpecs: Array[OddSpec]
   def perform(): Unit
 
-  def getSource(path: String): Source =
-    new StreamSource(this.getClass.getResource(path).toExternalForm)
+  def getSource(path: String): SAXSource =
+    new SAXSource(new InputSource(this.getClass.getResource(path).toExternalForm))
 
   protected val removeExtension: String => String = {
     case s: String if s.endsWith(".odd") => s.slice(0, s.length - 4)

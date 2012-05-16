@@ -26,8 +26,6 @@ import javax.xml.transform.Templates
 import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerConfigurationException
 import javax.xml.transform.TransformerFactory
-import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.stream.StreamSource
 import org.codehaus.mojo.xml.Resolver
 import org.codehaus.mojo.xml.TransformMojo
 import org.apache.maven.plugin.MojoExecutionException
