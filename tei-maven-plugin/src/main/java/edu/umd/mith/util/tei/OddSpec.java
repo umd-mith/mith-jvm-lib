@@ -21,6 +21,7 @@ package edu.umd.mith.util.tei;
 
 import java.io.File;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.mojo.xml.validation.ValidationSet;
 import org.codehaus.plexus.resource.ResourceManager;
 import org.codehaus.plexus.resource.loader.FileResourceLoader;
 
@@ -54,6 +55,12 @@ public class OddSpec {
   private File schOutputDir;
 
   /**
+   * Specifies the directories to validate (if any).
+   * @parameter
+   */
+  private TeiDir[] teiDirs;
+
+  /**
    * Whether creating the transformed files should be forced. This is not
    * currently used! Derivative files will be produced on every invocation.
    * @parameter default-value="false"
@@ -78,6 +85,10 @@ public class OddSpec {
 
   public boolean getForceCreation() {
     return this.forceCreation;
+  }
+
+  public TeiDir[] getTeiDirs() {
+    return this.teiDirs;
   }
 }
 

@@ -33,13 +33,8 @@ import org.codehaus.mojo.xml.TransformMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
 
-abstract class TransformingGoal extends TransformMojo {
+abstract class TransformingGoal extends TransformMojo with TransformerHelper {
   def getTransformerFactoryClassName: String
-
-  protected def getSource(path: String): Source = {
-    val uri = this.getClass.getResource(path)
-    new StreamSource(uri.toExternalForm)
-  }
 
   protected def getTransformer(r: Resolver, s: Source) = {
     val tf = this.getTransformerFactory
@@ -56,35 +51,21 @@ abstract class TransformingGoal extends TransformMojo {
     }
   }
 
-  protected def transform(t: Transformer, source: File, target: File) {
-    t.transform(new StreamSource(source), new StreamResult(target))
-  }
-
-  private def getTransformerFactory =
-    Option(this.getTransformerFactoryClassName) match {
-      case None => TransformerFactory.newInstance
-      case Some(className: String) => try {
-        classOf[TransformerFactory].getDeclaredMethod(
-          "newInstance", classOf[String], classOf[ClassLoader]
-        ).invoke(
-          null,
-          className,
-          Thread.currentThread.getContextClassLoader
-        ).asInstanceOf[TransformerFactory]
-    } catch {
-      case _: NoSuchMethodException =>
-        throw new MojoFailureException(
-          "JDK6 required when using transformerFactory parameter."
-        )
-      case e: IllegalAccessException =>
-        throw new MojoExecutionException(
-          "Cannot instantiate transformer factory.", e
-        )
-      case e: InvocationTargetException =>
-        throw new MojoExecutionException(
-          "Cannot instantiate transformer factory.", e
-        )
-    }
+  private def getTransformerFactory = try {
+    this.newTransformerFactory(Option(this.getTransformerFactoryClassName))
+  } catch {
+    case _: NoSuchMethodException =>
+      throw new MojoFailureException(
+        "JDK6 required when using transformerFactory parameter."
+      )
+    case e: IllegalAccessException =>
+      throw new MojoExecutionException(
+        "Cannot instantiate transformer factory.", e
+      )
+    case e: InvocationTargetException =>
+      throw new MojoExecutionException(
+        "Cannot instantiate transformer factory.", e
+      )
   }
 }
 

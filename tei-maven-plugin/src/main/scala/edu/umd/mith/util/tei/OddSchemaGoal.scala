@@ -46,13 +46,18 @@ abstract class OddSchemaGoal extends TransformingGoal {
           val sch = new File(schDir, base + ".isosch")
           this.transform(odd2Odd, source, odd)
           this.transform(odd2Rng, odd, rng)
-          this.transform(odd2Sch, odd, sch) 
+          this.transform(odd2Sch, odd, sch)
+          Option(spec.getTeiDirs).foreach { _ => ()
+
+          }
         }.getOrElse(throw new MojoFailureException("No ODD source configured."))
       }
     } catch {
       case e => throw e
     } finally this.passivateProxy(oldProxySettings)
   }
+
+  //private def validate(rng: File, sch: File
 
   private val removeExtension: String => String = {
     case s: String if s.endsWith(".odd") => s.slice(0, s.length - 4)
