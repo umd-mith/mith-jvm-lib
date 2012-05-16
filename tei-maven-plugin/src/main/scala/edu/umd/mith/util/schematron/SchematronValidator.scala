@@ -45,24 +45,21 @@ class SchematronValidator(resolver: Resolver, source: Source) {
 
   private val dsdlInclude = this.factory.newTransformerHandler(
     this.factory.newTemplates(new StreamSource(
-      this.getClass.getResourceAsStream("/com/schematron/stylesheets/iso_dsdl_include.xsl")
+      this.getClass.getResource("/com/schematron/stylesheets/iso_dsdl_include.xsl").toExternalForm
     ))
   )
-  this.dsdlInclude.getTransformer.setURIResolver(resolver)
 
   private val abstractExpand = this.factory.newTransformerHandler(
     this.factory.newTemplates(new StreamSource(
-      this.getClass.getResourceAsStream("/com/schematron/stylesheets/iso_abstract_expand.xsl")
+      this.getClass.getResource("/com/schematron/stylesheets/iso_abstract_expand.xsl").toExternalForm
     ))  
   )
-  this.abstractExpand.getTransformer.setURIResolver(resolver)
 
   private val svrl = this.factory.newTransformerHandler(
     this.factory.newTemplates(new StreamSource(
-      this.getClass.getResourceAsStream("/com/schematron/stylesheets/iso_svrl_for_xslt2.xsl")
+      this.getClass.getResource("/com/schematron/stylesheets/iso_svrl_for_xslt2.xsl").toExternalForm
     ))
   )
-  this.svrl.getTransformer.setURIResolver(resolver)
 
   private val s = new java.io.StringWriter()
   private val schema = new StreamResult(s)
@@ -73,11 +70,9 @@ class SchematronValidator(resolver: Resolver, source: Source) {
   this.svrl.setResult(this.schema)
 
   private val preparer = this.factory.newTransformer
-  this.preparer.setURIResolver(resolver)
   this.preparer.transform(source, new SAXResult(this.dsdlInclude))
 
-  println(this.s.toString)
-
+  //val transformer = this.factory.newTemplates(new DOMSource(this.schema.getNode)).newTransformer 
   val transformer = this.factory.newTemplates(new StreamSource(new java.io.StringReader(this.s.toString))).newTransformer 
   this.transformer.setURIResolver(resolver)
 
