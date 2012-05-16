@@ -19,8 +19,10 @@
  */
 package edu.umd.mith.util.tei
 
+import edu.umd.mith.util.schematron.SchematronValidator
 import java.io.File
 import javax.xml.XMLConstants
+import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
@@ -46,6 +48,8 @@ abstract class ValidateGoal extends TransformingGoal {
           .newSchema(new StreamSource(rng))
           .newValidator
 
+        val schValidator = new SchematronValidator(this.getResolver, new StreamSource(sch))
+
         val errors = new ValidationErrorHandler
         rngValidator.setErrorHandler(errors)
 
@@ -53,6 +57,7 @@ abstract class ValidateGoal extends TransformingGoal {
           println("Validating " + file)
           try {
             rngValidator.validate(new StreamSource(file))
+            schValidator.validate(new StreamSource(file), new StreamResult(new File("so/" + file.getName)))
           } catch {
             case e: Exception => throw(e)
           }

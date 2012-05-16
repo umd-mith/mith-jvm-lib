@@ -26,47 +26,60 @@ import javax.xml.transform.Source
 import javax.xml.transform.Templates
 import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerFactory
+import javax.xml.transform.URIResolver
 import javax.xml.transform.dom.DOMResult
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.sax.SAXTransformerFactory
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
+import org.codehaus.mojo.xml.Resolver
 
-class SchematronValidator(source: Source) {
+class SchematronValidator(resolver: Resolver, source: Source) {
   private val factoryInstance = TransformerFactory.newInstance
+
   // Should provide a fallback here. 
   assert(this.factoryInstance.getFeature(SAXTransformerFactory.FEATURE))
   private val factory = factoryInstance.asInstanceOf[SAXTransformerFactory]
+  this.factory.setURIResolver(resolver)
 
   private val dsdlInclude = this.factory.newTransformerHandler(
     this.factory.newTemplates(new StreamSource(
       this.getClass.getResourceAsStream("/com/schematron/stylesheets/iso_dsdl_include.xsl")
     ))
   )
+  this.dsdlInclude.getTransformer.setURIResolver(resolver)
 
   private val abstractExpand = this.factory.newTransformerHandler(
     this.factory.newTemplates(new StreamSource(
       this.getClass.getResourceAsStream("/com/schematron/stylesheets/iso_abstract_expand.xsl")
     ))  
   )
+  this.abstractExpand.getTransformer.setURIResolver(resolver)
 
   private val svrl = this.factory.newTransformerHandler(
     this.factory.newTemplates(new StreamSource(
       this.getClass.getResourceAsStream("/com/schematron/stylesheets/iso_svrl_for_xslt2.xsl")
     ))
   )
+  this.svrl.getTransformer.setURIResolver(resolver)
 
-  private val schema = new DOMResult()
+  private val s = new java.io.StringWriter()
+  private val schema = new StreamResult(s)
+  //private val schema = new DOMResult()
 
   this.dsdlInclude.setResult(new SAXResult(this.abstractExpand))
   this.abstractExpand.setResult(new SAXResult(this.svrl))
   this.svrl.setResult(this.schema)
 
   private val preparer = this.factory.newTransformer
+  this.preparer.setURIResolver(resolver)
   this.preparer.transform(source, new SAXResult(this.dsdlInclude))
 
-  val transformer = this.factory.newTemplates(new DOMSource(this.schema.getNode)).newTransformer 
+  println(this.s.toString)
+
+  val transformer = this.factory.newTemplates(new StreamSource(new java.io.StringReader(this.s.toString))).newTransformer 
+  this.transformer.setURIResolver(resolver)
 
   def validate(source: Source, result: Result) {
     this.transformer.transform(source, result)
