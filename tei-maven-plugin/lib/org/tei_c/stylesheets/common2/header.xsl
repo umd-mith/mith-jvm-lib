@@ -7,15 +7,40 @@
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" scope="stylesheet" type="stylesheet">
       <desc>
          <p> TEI stylesheet dealing with elements from the header module. </p>
-         <p> This library is free software; you can redistribute it and/or modify it under the terms of the
-      GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of
-      the License, or (at your option) any later version. This library is distributed in the hope that it will
-      be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-      A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should have
-      received a copy of the GNU Lesser General Public License along with this library; if not, write to the
-      Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA </p>
+         <p>This software is dual-licensed:
+
+1. Distributed under a Creative Commons Attribution-ShareAlike 3.0
+Unported License http://creativecommons.org/licenses/by-sa/3.0/ 
+
+2. http://www.opensource.org/licenses/BSD-2-Clause
+		
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+This software is provided by the copyright holders and contributors
+"as is" and any express or implied warranties, including, but not
+limited to, the implied warranties of merchantability and fitness for
+a particular purpose are disclaimed. In no event shall the copyright
+holder or contributors be liable for any direct, indirect, incidental,
+special, exemplary, or consequential damages (including, but not
+limited to, procurement of substitute goods or services; loss of use,
+data, or profits; or business interruption) however caused and on any
+theory of liability, whether in contract, strict liability, or tort
+(including negligence or otherwise) arising in any way out of the use
+of this software, even if advised of the possibility of such damage.
+</p>
          <p>Author: See AUTHORS</p>
-         <p>Id: $Id: header.xsl 9494 2011-10-12 22:25:12Z sbauman $</p>
+         <p>Id: $Id: header.xsl 10056 2012-01-20 23:22:33Z rahtz $</p>
          <p>Copyright: 2011, TEI Consortium</p>
       </desc>
    </doc>
@@ -178,23 +203,26 @@
       </xsl:variable>
       <xsl:choose>
          <xsl:when test="starts-with($when,'$Date')">
-        <!-- it's RCS -->
-        <xsl:value-of select="substring($when,16,2)"/>
-            <xsl:text>/</xsl:text>
-            <xsl:value-of select="substring($when,13,2)"/>
-            <xsl:text>/</xsl:text>
-            <xsl:value-of select="substring($when,8,4)"/>
+	   <!-- it's RCS -->
+	   <xsl:value-of select="substring($when,16,2)"/>
+	   <xsl:text>/</xsl:text>
+	   <xsl:value-of select="substring($when,13,2)"/>
+	   <xsl:text>/</xsl:text>
+	   <xsl:value-of select="substring($when,8,4)"/>
          </xsl:when>
          <xsl:when test="starts-with($when,'$LastChangedDate')">
-        <!-- it's Subversion-->
-        <xsl:value-of select="substring-before(substring-after($when,'('),')')"/>
+	   <!-- it's Subversion-->
+	   <xsl:value-of select="substring-before(substring-after($when,'('),')')"/>
          </xsl:when>
-         <xsl:otherwise>
-            <xsl:value-of select="$when"/>
+         <xsl:when test="not($when='')">
+	   <xsl:value-of select="$when"/>
+	 </xsl:when>
+	 <xsl:otherwise>
+	   <xsl:value-of select="format-dateTime(current-dateTime(),'[Y]-[M02]-[D02]T[H02]:[m02]:[s02]Z')"/>
          </xsl:otherwise>
       </xsl:choose>
   </xsl:template>
-
+  
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
       <desc>[common] Work out the publish date of the document </desc>
    </doc>

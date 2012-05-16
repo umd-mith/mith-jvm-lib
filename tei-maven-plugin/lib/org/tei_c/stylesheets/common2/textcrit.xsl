@@ -14,30 +14,44 @@
     dealing with elements from the
       textcrit module.
       </p>
-         <p>
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
+         <p>This software is dual-licensed:
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+1. Distributed under a Creative Commons Attribution-ShareAlike 3.0
+Unported License http://creativecommons.org/licenses/by-sa/3.0/ 
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+2. http://www.opensource.org/licenses/BSD-2-Clause
+		
+All rights reserved.
 
-   
-   
-      </p>
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+This software is provided by the copyright holders and contributors
+"as is" and any express or implied warranties, including, but not
+limited to, the implied warranties of merchantability and fitness for
+a particular purpose are disclaimed. In no event shall the copyright
+holder or contributors be liable for any direct, indirect, incidental,
+special, exemplary, or consequential damages (including, but not
+limited to, procurement of substitute goods or services; loss of use,
+data, or profits; or business interruption) however caused and on any
+theory of liability, whether in contract, strict liability, or tort
+(including negligence or otherwise) arising in any way out of the use
+of this software, even if advised of the possibility of such damage.
+</p>
          <p>Author: See AUTHORS</p>
          <p>Copyright: 2011, TEI Consortium</p>
       </desc>
    </doc>
 
-   <xsl:key name="APP" match="tei:app" use="1"/>
+   <xsl:key name="APPREADINGS" match="tei:app[starts-with(@from,'#')]" use="substring(@from,2)"/>
    
    <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
       <desc>
@@ -79,5 +93,34 @@
       </xsl:with-param>
     </xsl:call-template>
     </xsl:template>
+
+    <xsl:template match="tei:w">
+      <xsl:apply-templates/>
+      <xsl:if test="not(tei:app) and @xml:id">
+	<xsl:call-template name="findApp"/>
+      </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="findApp">
+      <xsl:for-each select="key('APPREADINGS',@xml:id)">
+	<xsl:apply-templates select="."/>
+      </xsl:for-each>
+    </xsl:template>
+	 
+  <xsl:template match="tei:l[tei:w]"
+		priority="999999999">
+<xsl:message>word <xsl:value-of select="."/></xsl:message>
+    <xsl:for-each select="tei:w">      
+      <xsl:apply-templates select="."/>
+      <xsl:if test="preceding-sibling::tei:w">
+	<xsl:text> </xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="tei:back/tei:div[@type='apparatus']"
+		priority="9999"/>
+
+
 
 </xsl:stylesheet>

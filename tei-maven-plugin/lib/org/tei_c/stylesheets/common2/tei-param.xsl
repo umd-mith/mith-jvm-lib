@@ -4,18 +4,40 @@
     <desc>
       <p>TEI stylesheet customization module, common for all output
       formats.</p>
-      <p> This library is free software; you can redistribute it and/or
-      modify it under the terms of the GNU Lesser General Public License as
-      published by the Free Software Foundation; either version 2.1 of the
-      License, or (at your option) any later version. This library is
-      distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-      without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-      PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-      details. You should have received a copy of the GNU Lesser General Public
-      License along with this library; if not, write to the Free Software
-      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA </p>
+      <p>This software is dual-licensed:
+
+1. Distributed under a Creative Commons Attribution-ShareAlike 3.0
+Unported License http://creativecommons.org/licenses/by-sa/3.0/ 
+
+2. http://www.opensource.org/licenses/BSD-2-Clause
+		
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+This software is provided by the copyright holders and contributors
+"as is" and any express or implied warranties, including, but not
+limited to, the implied warranties of merchantability and fitness for
+a particular purpose are disclaimed. In no event shall the copyright
+holder or contributors be liable for any direct, indirect, incidental,
+special, exemplary, or consequential damages (including, but not
+limited to, procurement of substitute goods or services; loss of use,
+data, or profits; or business interruption) however caused and on any
+theory of liability, whether in contract, strict liability, or tort
+(including negligence or otherwise) arising in any way out of the use
+of this software, even if advised of the possibility of such damage.
+</p>
       <p>Author: See AUTHORS</p>
-      <p>Id: $Id: tei-param.xsl 9408 2011-09-27 20:09:13Z rahtz $</p>
+      <p>Id: $Id: tei-param.xsl 10326 2012-05-07 17:05:20Z rahtz $</p>
       <p>Copyright: 2011, TEI Consortium</p>
     </desc>
   </doc>
@@ -156,6 +178,13 @@
       <xsl:number count="tei:div|tei:div1|tei:div2|tei:div3|tei:div4|tei:div5|tei:div6" format="A.1.1.1.1.1" level="multiple"/>
     </xsl:if>
   </xsl:template>
+
+  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" class="figures" type="boolean">
+    <desc>[common] Whether cross-reference to a figure or table
+    includes its caption</desc>
+  </doc>
+  <xsl:param name="headInXref">true</xsl:param>
+
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" class="numbering" type="boolean">
     <desc> Automatically number figures in back
     matter</desc>
@@ -288,6 +317,14 @@ Paragraph indentation
 </desc>
   </doc>
   <xsl:param name="parIndent">1em</xsl:param>
+
+  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" class="layout" type="string">
+    <desc>
+      Style for formatted bibliography
+    </desc>
+  </doc>
+  <xsl:param name="biblioStyle"></xsl:param>
+
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" class="layout" type="string">
     <desc>
 Default spacing between paragraphs

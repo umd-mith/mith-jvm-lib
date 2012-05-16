@@ -16,18 +16,40 @@
       <desc>
          <p> TEI stylesheet dealing with elements from the figures module,
       making HTML output. </p>
-         <p> This library is free software; you can redistribute it and/or
-      modify it under the terms of the GNU Lesser General Public License as
-      published by the Free Software Foundation; either version 2.1 of the
-      License, or (at your option) any later version. This library is
-      distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-      without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-      PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-      details. You should have received a copy of the GNU Lesser General Public
-      License along with this library; if not, write to the Free Software
-      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA </p>
+         <p>This software is dual-licensed:
+
+1. Distributed under a Creative Commons Attribution-ShareAlike 3.0
+Unported License http://creativecommons.org/licenses/by-sa/3.0/ 
+
+2. http://www.opensource.org/licenses/BSD-2-Clause
+		
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+This software is provided by the copyright holders and contributors
+"as is" and any express or implied warranties, including, but not
+limited to, the implied warranties of merchantability and fitness for
+a particular purpose are disclaimed. In no event shall the copyright
+holder or contributors be liable for any direct, indirect, incidental,
+special, exemplary, or consequential damages (including, but not
+limited to, procurement of substitute goods or services; loss of use,
+data, or profits; or business interruption) however caused and on any
+theory of liability, whether in contract, strict liability, or tort
+(including negligence or otherwise) arising in any way out of the use
+of this software, even if advised of the possibility of such damage.
+</p>
          <p>Author: See AUTHORS</p>
-         <p>Id: $Id: figures.xsl 9419 2011-09-28 22:07:10Z rahtz $</p>
+         <p>Id: $Id: figures.xsl 10341 2012-05-11 07:54:27Z rahtz $</p>
          <p>Copyright: 2011, TEI Consortium</p>
       </desc>
    </doc>
@@ -59,7 +81,6 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$cellname}">
-      <xsl:attribute name="valign">top</xsl:attribute>
       <xsl:for-each select="@*">
 	<xsl:choose>
 	  <xsl:when test="name(.) = 'width' or name(.) =
@@ -167,7 +188,6 @@
 	      </xsl:attribute>
 	    </xsl:otherwise>
 	  </xsl:choose>
-	  
 	  <xsl:if test="@xml:id">
 	    <xsl:attribute name="id">
 	      <xsl:value-of select="@xml:id"/>
@@ -175,52 +195,6 @@
 	  </xsl:if>
 	  <xsl:call-template name="figureHook"/>
 	  <xsl:apply-templates/>
-	  <xsl:if test="tei:head">
-	    <xsl:variable name="caption">
-	      <xsl:choose>
-		<xsl:when test="ancestor::tei:front and  $numberFrontFigures='true'">
-		  <xsl:call-template name="i18n">
-		    <xsl:with-param name="word">figureWord</xsl:with-param>
-		  </xsl:call-template>
-		  <xsl:text> </xsl:text>
-		  <xsl:number count="tei:figure[tei:head]" from="tei:front" level="any"/>
-		  <xsl:text>. </xsl:text>
-		</xsl:when>
-		<xsl:when test="ancestor::tei:back and $numberBackFigures='true'">
-		  <xsl:call-template name="i18n">
-		    <xsl:with-param name="word">figureWord</xsl:with-param>
-		  </xsl:call-template>
-		  <xsl:text> </xsl:text>
-		  <xsl:number count="tei:figure[tei:head]" from="tei:back" level="any"/>
-		  <xsl:text>. </xsl:text>
-		</xsl:when>
-		<xsl:when test="ancestor::tei:body and $numberFigures='true'">
-		  <xsl:call-template name="i18n">
-		    <xsl:with-param name="word">figureWord</xsl:with-param>
-		  </xsl:call-template>
-		  <xsl:text> </xsl:text>
-		  <xsl:number count="tei:figure[tei:head]" from="tei:body" level="any"/>
-		  <xsl:text>. </xsl:text>
-		</xsl:when>
-	      </xsl:choose>
-	    </xsl:variable>
-	    <xsl:choose>
-	      <xsl:when test="$outputTarget='html5'">
-		<figcaption>
-		  <xsl:copy-of select="$caption"/>
-		  <xsl:apply-templates select="tei:head"/>
-		</figcaption>
-	      </xsl:when>
-	      <xsl:otherwise>
-		<span class="caption">
-		  <xsl:copy-of select="$caption"/>
-		  <xsl:for-each select="tei:head">
-		    <xsl:apply-templates/>
-		  </xsl:for-each>
-		</span>
-	      </xsl:otherwise>
-	    </xsl:choose>
-	  </xsl:if>
 	</xsl:element>
       </xsl:otherwise>
     </xsl:choose>
@@ -228,7 +202,38 @@
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc>Process element figure/tei:head</desc>
   </doc>
-  <xsl:template match="tei:figure/tei:head"/>
+  <xsl:template match="tei:figure/tei:head">
+    <xsl:variable name="captionlabel">
+      <xsl:for-each select="..">
+	<xsl:call-template name="calculateFigureNumber"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$outputTarget='html5'">
+	<figcaption>
+	  <xsl:if test="@rend">
+	    <xsl:attribute name="class" select="@rend"/>
+	  </xsl:if>
+	  <xsl:call-template name="rendering"/>
+	  <xsl:if test="not($captionlabel='')">
+	    <xsl:text>. </xsl:text>
+	  </xsl:if>
+	  <xsl:copy-of select="$captionlabel"/>
+	  <xsl:apply-templates/>
+	</figcaption>
+      </xsl:when>
+      <xsl:otherwise>
+	<span class="caption {@rend}">
+	  <xsl:copy-of select="$captionlabel"/>
+	  <xsl:if test="not($captionlabel='')">
+	    <xsl:text>. </xsl:text>
+	  </xsl:if>
+	  <xsl:apply-templates/>
+	</span>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc>Process element formula</desc>
   </doc>
@@ -263,48 +268,48 @@
   <xsl:template match="tei:table">
       <div>
          <xsl:attribute name="class">
-	           <xsl:text>table</xsl:text>
-	           <xsl:if test="@align">
-	              <xsl:text> </xsl:text>
-	              <xsl:value-of select="@align"/>
-	           </xsl:if>
-         </xsl:attribute>
+	   <xsl:text>table</xsl:text>
+	   <xsl:if test="@align">
+	     <xsl:text> </xsl:text>
+	     <xsl:value-of select="@align"/>
+	   </xsl:if>
+	 </xsl:attribute>
 	 <xsl:if test="@xml:id">	   
 	   <xsl:call-template name="makeAnchor"/>
 	 </xsl:if>
-         <table>
-            <xsl:call-template name="rendToClass">
-	              <xsl:with-param name="id">false</xsl:with-param>
-	           </xsl:call-template>
-            <xsl:if test="@rend='frame' or @rend='rules'">
-               <xsl:attribute name="rules">all</xsl:attribute>
-               <xsl:attribute name="border">1</xsl:attribute>
-            </xsl:if>
-            <xsl:for-each select="@*">
-               <xsl:if test="name(.)='summary' or name(.) = 'width' or name(.) = 'border' or name(.) = 'frame' or name(.) = 'rules' or name(.) = 'cellspacing' or name(.) = 'cellpadding'">
-                  <xsl:copy-of select="."/>
-               </xsl:if>
-            </xsl:for-each>
-	    <xsl:if test="tei:head">
-	      <caption>
-		<xsl:apply-templates select="tei:head"/>
-	      </caption>
-	    </xsl:if>
-	    <xsl:choose>
-	      <xsl:when test="tei:row[@rend='thead']">
-		<thead>
-		  <xsl:apply-templates
-		      select="tei:row[@rend='thead']"/>
-		</thead>
-		<tbody>
-		  <xsl:apply-templates select="tei:row[not(@rend='thead')]"/>
-		</tbody>
-	      </xsl:when>
-	      <xsl:otherwise>
-		<xsl:apply-templates select="tei:row"/>
-	      </xsl:otherwise>
-	    </xsl:choose>
-         </table>
+	 <table>
+	   <xsl:call-template name="rendToClass">
+	     <xsl:with-param name="id">false</xsl:with-param>
+	   </xsl:call-template>
+	   <xsl:if test="@rend='frame' or @rend='rules'">
+	     <xsl:attribute name="rules">all</xsl:attribute>
+	     <xsl:attribute name="border">1</xsl:attribute>
+	   </xsl:if>
+	   <xsl:for-each select="@*">
+	     <xsl:if test="name(.)='summary' or name(.) = 'width' or name(.) = 'border' or name(.) = 'frame' or name(.) = 'rules' or name(.) = 'cellspacing' or name(.) = 'cellpadding'">
+	       <xsl:copy-of select="."/>
+	     </xsl:if>
+	   </xsl:for-each>
+	   <xsl:if test="tei:head">
+	     <caption>
+	       <xsl:apply-templates select="tei:head"/>
+	     </caption>
+	   </xsl:if>
+	   <xsl:choose>
+	     <xsl:when test="tei:row[@rend='thead']">
+	       <thead>
+		 <xsl:apply-templates
+		     select="tei:row[@rend='thead']"/>
+	       </thead>
+	       <tbody>
+		 <xsl:apply-templates select="tei:row[not(@rend='thead')]"/>
+	       </tbody>
+	     </xsl:when>
+	     <xsl:otherwise>
+	       <xsl:apply-templates select="tei:row"/>
+	     </xsl:otherwise>
+	   </xsl:choose>
+	 </table>
 	 <xsl:apply-templates select="tei:note"/>
       </div>
   </xsl:template>

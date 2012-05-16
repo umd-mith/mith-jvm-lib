@@ -17,18 +17,40 @@
       <desc>
          <p> TEI stylesheet dealing with elements from the textstructure
       module, making HTML output. </p>
-         <p> This library is free software; you can redistribute it and/or
-      modify it under the terms of the GNU Lesser General Public License as
-      published by the Free Software Foundation; either version 2.1 of the
-      License, or (at your option) any later version. This library is
-      distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-      without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-      PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-      details. You should have received a copy of the GNU Lesser General Public
-      License along with this library; if not, write to the Free Software
-      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA xs </p>
+         <p>This software is dual-licensed:
+
+1. Distributed under a Creative Commons Attribution-ShareAlike 3.0
+Unported License http://creativecommons.org/licenses/by-sa/3.0/ 
+
+2. http://www.opensource.org/licenses/BSD-2-Clause
+		
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+This software is provided by the copyright holders and contributors
+"as is" and any express or implied warranties, including, but not
+limited to, the implied warranties of merchantability and fitness for
+a particular purpose are disclaimed. In no event shall the copyright
+holder or contributors be liable for any direct, indirect, incidental,
+special, exemplary, or consequential damages (including, but not
+limited to, procurement of substitute goods or services; loss of use,
+data, or profits; or business interruption) however caused and on any
+theory of liability, whether in contract, strict liability, or tort
+(including negligence or otherwise) arising in any way out of the use
+of this software, even if advised of the possibility of such damage.
+</p>
          <p>Author: See AUTHORS</p>
-         <p>Id: $Id: textstructure.xsl 9513 2011-10-17 08:55:51Z rahtz $</p>
+         <p>Id: $Id: textstructure.xsl 10109 2012-02-22 12:18:38Z rahtz $</p>
          <p>Copyright: 2011, TEI Consortium</p>
       </desc>
    </doc>
@@ -971,7 +993,7 @@
       
 	<xsl:choose>
 	  <xsl:when test="parent::tei:*/@rend='multicol'">
-	    <td valign="top">
+	    <td style="vertical-align:top;">
 	      <xsl:if test="not($Depth = '')">
 		<xsl:element name="h{$Depth + $divOffset}">
 		  <xsl:for-each select="tei:head[1]">		
@@ -1001,47 +1023,68 @@
 	 </xsl:when>
          <xsl:otherwise>
 	   <xsl:if test="not($Depth = '')">
-	     <xsl:element name="{if (number($Depth)+$divOffset &gt;6) then 'div'
-				else concat('h',number($Depth) + $divOffset)}">
-	       <xsl:choose>
-		 <xsl:when test="@rend">
-		   <xsl:call-template name="rendToClass">
-		     <xsl:with-param
-			 name="id">false</xsl:with-param>
-		   </xsl:call-template>
-		 </xsl:when>
-		 <xsl:otherwise>
-		   <xsl:for-each select="tei:head[1]">
+	     <xsl:variable name="Heading">
+	       <xsl:element name="{if (number($Depth)+$divOffset &gt;6) then 'div'
+				  else concat('h',number($Depth) + $divOffset)}">
+		 <xsl:choose>
+		   <xsl:when test="@rend">
 		     <xsl:call-template name="rendToClass">
-		       <xsl:with-param name="default">
-			 <xsl:if test="number($Depth)&gt;5">
-			   <xsl:text>div</xsl:text>
-			   <xsl:value-of select="$Depth"/>
-			 </xsl:if>
-		       </xsl:with-param>
+		       <xsl:with-param
+			   name="id">false</xsl:with-param>
 		     </xsl:call-template>
-		   </xsl:for-each>
-		 </xsl:otherwise>
-	       </xsl:choose>
-	       <xsl:call-template name="header">
-		 <xsl:with-param name="display">full</xsl:with-param>
-	       </xsl:call-template>
-	       <xsl:call-template name="sectionHeadHook"/>
-	     </xsl:element>
-		 <xsl:if test="$topNavigationPanel='true' and $nav='true'">
-		   <xsl:call-template name="xrefpanel">
-		     <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
-		     <xsl:with-param name="mode" select="local-name(.)"/>
-		   </xsl:call-template>
-		 </xsl:if>
+		   </xsl:when>
+		   <xsl:otherwise>
+		     <xsl:for-each select="tei:head[1]">
+		       <xsl:call-template name="rendToClass">
+			 <xsl:with-param name="default">
+			   <xsl:if test="number($Depth)&gt;5">
+			     <xsl:text>div</xsl:text>
+			     <xsl:value-of select="$Depth"/>
+			   </xsl:if>
+			 </xsl:with-param>
+		       </xsl:call-template>
+		     </xsl:for-each>
+		   </xsl:otherwise>
+		 </xsl:choose>
+		 <xsl:call-template name="header">
+		   <xsl:with-param name="display">full</xsl:with-param>
+		 </xsl:call-template>
+		 <xsl:call-template name="sectionHeadHook"/>
+	       </xsl:element>
+	     </xsl:variable>
+	     <xsl:choose>
+	       <xsl:when test="$outputTarget='html5'">
+		 <header>
+		   <xsl:copy-of select="$Heading"/>
+		 </header>
+	       </xsl:when>
+	       <xsl:otherwise>
+		 <xsl:copy-of select="$Heading"/>
+	       </xsl:otherwise>
+	     </xsl:choose>
+
+	     <xsl:if test="$topNavigationPanel='true' and
+			   $nav='true'">
+	       <xsl:element name="{if ($outputTarget='html5') then 'nav'
+				  else 'div'}">
+		 <xsl:call-template name="xrefpanel">
+		   <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
+		   <xsl:with-param name="mode" select="local-name(.)"/>
+		 </xsl:call-template>
+	       </xsl:element>
+	     </xsl:if>
 	   </xsl:if>
 	   <xsl:apply-templates/>
-		 <xsl:if test="$bottomNavigationPanel='true' and $nav='true'">
-		   <xsl:call-template name="xrefpanel">
-		     <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
-		     <xsl:with-param name="mode" select="local-name(.)"/>
-		   </xsl:call-template>
-		 </xsl:if>
+	   <xsl:if test="$bottomNavigationPanel='true' and
+			 $nav='true'">
+	     <xsl:element name="{if ($outputTarget='html5') then 'nav' else
+				'div'}">	       
+	       <xsl:call-template name="xrefpanel">
+		 <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
+		 <xsl:with-param name="mode" select="local-name(.)"/>
+	       </xsl:call-template>
+	     </xsl:element>
+	   </xsl:if>
          </xsl:otherwise>
 	</xsl:choose>
   </xsl:template>
@@ -1251,13 +1294,16 @@
       </xsl:if>
       
       <xsl:if test="$cssInlineFile">
-	<style type="text/css" title="local_css">
+	<style type="text/css" title="inline_css">
 	  <xsl:for-each select="tokenize(unparsed-text($cssInlineFile),
 				'\r?\n')">
-	    <xsl:value-of select="."/>
+	    <xsl:value-of select="normalize-space(.)"/>
+	    <xsl:text>&#10;</xsl:text>
 	  </xsl:for-each>
 	</style>
       </xsl:if>
+
+      <xsl:call-template name="generateLocalCSS"/>
       
   </xsl:template>
 
@@ -1439,17 +1485,21 @@
 			<xsl:call-template name="sectionHeadHook"/>
                      </h2>
 		     <xsl:if test="$topNavigationPanel='true'">
-		       <xsl:call-template name="xrefpanel">
-			 <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
-			 <xsl:with-param name="mode" select="local-name(.)"/>
-		       </xsl:call-template>
+		       <xsl:element name="{if ($outputTarget='html5') then 'nav' else 'div'}">
+			 <xsl:call-template name="xrefpanel">
+			   <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
+			   <xsl:with-param name="mode" select="local-name(.)"/>
+			 </xsl:call-template>
+		       </xsl:element>
 		     </xsl:if>
                      <xsl:call-template name="doDivBody"/>
                      <xsl:if test="$bottomNavigationPanel='true'">
-                        <xsl:call-template name="xrefpanel">
-                           <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
-                           <xsl:with-param name="mode" select="local-name(.)"/>
+		       <xsl:element name="{if ($outputTarget='html5') then 'nav' else 'div'}">
+			 <xsl:call-template name="xrefpanel">
+			   <xsl:with-param name="homepage" select="concat($masterFile,$standardSuffix)"/>
+			   <xsl:with-param name="mode" select="local-name(.)"/>
                         </xsl:call-template>
+		       </xsl:element>
                      </xsl:if>
                   </xsl:for-each>
                </xsl:when>
@@ -2075,7 +2125,7 @@
             </td>
          </tr>
          <tr>
-            <td align="left" class="sidetext" rowspan="2" valign="top" width="{$linksWidth}">
+            <td align="left" class="sidetext" rowspan="2" style="vertical-align:top;" width="{$linksWidth}">
                <xsl:call-template name="searchbox"/>
                <xsl:call-template name="leftHandFrame">
                   <xsl:with-param name="currentID" select="$requestedID"/>
@@ -2083,7 +2133,7 @@
             </td>
          </tr>
          <tr>
-            <td class="maintext" colspan="2" valign="top">
+            <td class="maintext" colspan="2" style="vertical-align:top;">
                <xsl:call-template name="mainFrame">
                   <xsl:with-param name="currentID" select="$currentID"/>
                </xsl:call-template>
@@ -2484,7 +2534,7 @@
             <xsl:for-each select="//tei:body/tei:div">
                <xsl:text>&#10;</xsl:text>
                <tr class="summaryline">
-                  <td align="right" class="summarycell" valign="top">
+                  <td align="right" class="summarycell" style="vertical-align:top;">
                      <b>
                         <a class="nolink">
                            <xsl:attribute name="href">
@@ -2494,7 +2544,7 @@
                         </a>
                      </b>
                   </td>
-                  <td class="link" valign="top">
+                  <td class="link" style="vertical-align:top;">
                      <xsl:for-each select=".//xref|.//xptr">
                         <xsl:if test="position() &gt; 1">
                            <xsl:text>&#160;</xsl:text>
@@ -2621,16 +2671,17 @@
    </doc>
   <xsl:template name="topNavigation">
       <xsl:if test="ancestor::teiCorpus">
-         <p class="{$alignNavigationPanel}">
-            <xsl:call-template name="nextLink"/>
-            <xsl:call-template name="previousLink"/>
-            <xsl:call-template name="upLink">
-               <xsl:with-param name="up" select="concat($masterFile,$standardSuffix)"/>
-               <xsl:with-param name="title">
-                  <xsl:call-template name="contentsWord"/>
-               </xsl:with-param>
-            </xsl:call-template>
-         </p>
+	<xsl:element name="{if ($outputTarget='html5') then 'nav' else 'div'}">	  
+	  <xsl:attribute name="class" select="$alignNavigationPanel"/>
+	    <xsl:call-template name="nextLink"/>
+	    <xsl:call-template name="previousLink"/>
+	    <xsl:call-template name="upLink">
+	      <xsl:with-param name="up" select="concat($masterFile,$standardSuffix)"/>
+	      <xsl:with-param name="title">
+		<xsl:call-template name="contentsWord"/>
+	      </xsl:with-param>
+	    </xsl:call-template>
+	</xsl:element>
       </xsl:if>
   </xsl:template>
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
@@ -2778,10 +2829,12 @@
                   </xsl:with-param>
                </xsl:call-template>
                <xsl:if test="$topNavigationPanel='true'">
-                  <xsl:call-template name="xrefpanel">
-                     <xsl:with-param name="homepage" select="concat($BaseFile,$standardSuffix)"/>
+		 <xsl:element name="{if ($outputTarget='html5') then 'nav' else 'div'}">
+		   <xsl:call-template name="xrefpanel">
+		     <xsl:with-param name="homepage" select="concat($BaseFile,$standardSuffix)"/>
                      <xsl:with-param name="mode" select="local-name(.)"/>
                   </xsl:call-template>
+		 </xsl:element>
                </xsl:if>
                <xsl:if test="$subTocDepth &gt;= 0">
                   <xsl:call-template name="subtoc"/>
@@ -2790,10 +2843,12 @@
                <xsl:call-template name="doDivBody"/>
                <xsl:call-template name="printNotes"/>
                <xsl:if test="$bottomNavigationPanel='true'">
+		 <xsl:element name="{if ($outputTarget='html5') then 'nav' else 'div'}">
                   <xsl:call-template name="xrefpanel">
                      <xsl:with-param name="homepage" select="concat($BaseFile,$standardSuffix)"/>
                      <xsl:with-param name="mode" select="local-name(.)"/>
                   </xsl:call-template>
+		 </xsl:element>
                </xsl:if>
                <xsl:call-template name="stdfooter"/>
 	              <xsl:call-template name="bodyEndHook"/>
@@ -2840,29 +2895,12 @@
   <xsl:template name="xrefpanel">
       <xsl:param name="homepage"/>
       <xsl:param name="mode"/>
-      <p class="{$alignNavigationPanel}">
-         <xsl:variable name="Parent">
-            <xsl:call-template name="locateParent"/>
-            <xsl:value-of select="$standardSuffix"/>
-         </xsl:variable>
-         <xsl:choose>
-            <xsl:when test="$Parent = $standardSuffix">
-               <xsl:call-template name="upLink">
-                  <xsl:with-param name="up" select="$homepage"/>
-                  <xsl:with-param name="title">
-                     <xsl:call-template name="contentsWord"/>
-                  </xsl:with-param>
-               </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-               <xsl:call-template name="generateUpLink"/>
-            </xsl:otherwise>
-         </xsl:choose>
-         <xsl:if test="not(ancestor-or-self::tei:TEI[@rend='nomenu'])">
-            <xsl:call-template name="previousLink"/>
-            <xsl:call-template name="nextLink"/>
-         </xsl:if>
-      </p>
+      <xsl:attribute name="class" select="$alignNavigationPanel"/>
+      <xsl:call-template name="generateUpLink"/>
+      <xsl:if test="not(ancestor-or-self::tei:TEI[@rend='nomenu'])">
+	<xsl:call-template name="previousLink"/>
+	<xsl:call-template name="nextLink"/>
+      </xsl:if>
   </xsl:template>
 
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
