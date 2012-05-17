@@ -48,7 +48,7 @@ abstract class ValidateGoal extends TransformingGoal {
           .newSchema(new StreamSource(rng))
           .newValidator
 
-        val schValidator = new SchematronValidator(this.getResolver, new StreamSource(sch))
+        val schValidator = new SchematronValidator(new StreamSource(sch), this.getResolver)
 
         val errors = new ValidationErrorHandler
         rngValidator.setErrorHandler(errors)

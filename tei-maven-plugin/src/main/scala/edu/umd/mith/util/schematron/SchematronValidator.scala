@@ -34,50 +34,61 @@ import javax.xml.transform.sax.SAXTransformerFactory
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 import org.codehaus.mojo.xml.Resolver
+import org.w3c.dom.bootstrap.DOMImplementationRegistry
 
-class SchematronValidator(resolver: Resolver, source: Source) {
-  private val factoryInstance = TransformerFactory.newInstance
+class SchematronValidator(
+  private val source: Source,
+  private val resolver: Resolver
+) {
+  def this(source: Source) = this(source, null)
 
-  // Should provide a fallback here. 
-  assert(this.factoryInstance.getFeature(SAXTransformerFactory.FEATURE))
-  private val factory = factoryInstance.asInstanceOf[SAXTransformerFactory]
-  this.factory.setURIResolver(resolver)
+  lazy val transformer = {
+    val factoryInstance = TransformerFactory.newInstance
 
-  private val dsdlInclude = this.factory.newTransformerHandler(
-    this.factory.newTemplates(new StreamSource(
-      this.getClass.getResource("/com/schematron/stylesheets/iso_dsdl_include.xsl").toExternalForm
-    ))
-  )
+    if (factoryInstance.getFeature(SAXTransformerFactory.FEATURE)) {
+      val factory = factoryInstance.asInstanceOf[SAXTransformerFactory]
+      if (this.resolver != null) factory.setURIResolver(resolver)
 
-  private val abstractExpand = this.factory.newTransformerHandler(
-    this.factory.newTemplates(new StreamSource(
-      this.getClass.getResource("/com/schematron/stylesheets/iso_abstract_expand.xsl").toExternalForm
-    ))  
-  )
+      val dsdlInclude = factory.newTransformerHandler(
+        new StreamSource(this.dsdlIncludeUri)
+      )
 
-  private val svrl = this.factory.newTransformerHandler(
-    this.factory.newTemplates(new StreamSource(
-      this.getClass.getResource("/com/schematron/stylesheets/iso_svrl_for_xslt2.xsl").toExternalForm
-    ))
-  )
+      val abstractExpand = factory.newTransformerHandler(
+        new StreamSource(this.abstractExpandUri)
+      )
 
-  private val s = new java.io.StringWriter()
-  private val schema = new StreamResult(s)
-  //private val schema = new DOMResult()
+      val svrl = factory.newTransformerHandler(
+        new StreamSource(this.svrlUri)
+      )
 
-  this.dsdlInclude.setResult(new SAXResult(this.abstractExpand))
-  this.abstractExpand.setResult(new SAXResult(this.svrl))
-  this.svrl.setResult(this.schema)
+      val schema = new DOMResult()
 
-  private val preparer = this.factory.newTransformer
-  this.preparer.transform(source, new SAXResult(this.dsdlInclude))
+      dsdlInclude.setResult(new SAXResult(abstractExpand))
+      abstractExpand.setResult(new SAXResult(svrl))
+      svrl.setResult(schema)
 
-  //val transformer = this.factory.newTemplates(new DOMSource(this.schema.getNode)).newTransformer 
-  val transformer = this.factory.newTemplates(new StreamSource(new java.io.StringReader(this.s.toString))).newTransformer 
-  this.transformer.setURIResolver(resolver)
+      factory.newTransformer.transform(source, new SAXResult(dsdlInclude))
+
+      factory.newTemplates(new DOMSource(schema.getNode)).newTransformer
+    } else {
+      null 
+    }
+  }
 
   def validate(source: Source, result: Result) {
     this.transformer.transform(source, result)
   }
+
+  private val dsdlIncludeUri = this.getClass.getResource(
+    "/com/schematron/stylesheets/iso_dsdl_include.xsl"
+  ).toExternalForm
+
+  private val abstractExpandUri = this.getClass.getResource(
+    "/com/schematron/stylesheets/iso_abstract_expand.xsl"
+  ).toExternalForm
+
+  private val svrlUri = this.getClass.getResource(
+    "/com/schematron/stylesheets/iso_svrl_for_xslt2.xsl"
+  ).toExternalForm
 }
 
