@@ -54,7 +54,6 @@ abstract class ValidateGoal extends TransformingGoal {
         rngValidator.setErrorHandler(handler)
 
         this.getTeiFiles(Option(spec.getTeiDirs)).foreach(_.foreach { file =>
-          println("Validating " + file)
           try {
             handler.start()
             rngValidator.validate(new StreamSource(file))
