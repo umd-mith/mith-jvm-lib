@@ -19,16 +19,16 @@
  */
 package edu.umd.mith.util.tei
 
-import edu.umd.mith.util.schematron.SchematronValidator
+import edu.umd.mith.util.xml._
+import edu.umd.mith.util.xml.schematron.SchematronValidator
 import java.io.File
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
+import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
-import org.xml.sax.ErrorHandler
-import org.xml.sax.SAXParseException
 import scala.collection.mutable.Buffer
 
 abstract class ValidateGoal extends TransformingGoal {
@@ -50,62 +50,32 @@ abstract class ValidateGoal extends TransformingGoal {
 
         val schValidator = new SchematronValidator(new StreamSource(sch), this.getResolver)
 
-        val errors = new ValidationErrorHandler
-        rngValidator.setErrorHandler(errors)
+        val handler = new ValidationErrorHandler
+        rngValidator.setErrorHandler(handler)
 
         this.getTeiFiles(Option(spec.getTeiDirs)).foreach(_.foreach { file =>
           println("Validating " + file)
           try {
+            handler.start()
             rngValidator.validate(new StreamSource(file))
-            schValidator.validate(new StreamSource(file), new StreamResult(new File("so/" + file.getName)))
+            if (!handler.lastFailed)
+              handler.addErrors(schValidator.validate(new StreamSource(file)))
           } catch {
             case e: Exception => throw(e)
           }
         })
-        errors.getAll.foreach { case e: SAXParseException =>
-          println(e.getSystemId + " " + e.getColumnNumber.toString + " " + e.getLineNumber.toString + " " + e.getMessage)
+
+        if (handler.getErrors.nonEmpty) {
+          throw new MojoExecutionException(handler.getErrors.map { error =>
+            "File: %s\n  Location: %s\n  Message: %s\n".format(
+              error.uri,
+              error.location,
+              error.message.replaceAll("\\s+", " ")
+            )
+          }.mkString("\n"))
         }
       }.getOrElse(throw new MojoFailureException("No ODD source configured."))
     }
-  }
-}
-
-sealed trait Error {
-  def uri: String
-  def message: String
-  def location: String
-}
-
-trait SaxError extends Error {
-  def line: Int
-  def column: Int
-  def location = "line %d; column %d".format(this.line, this.column)
-}
-
-case class FatalError(uri: String, message: String, line: Int, column: Int) extends SaxError
-case class NonFatalError(uri: String, message: String, line: Int, column: Int) extends SaxError
-case class Warning(uri: String, message: String, line: Int, column: Int) extends SaxError
-
-class ValidationErrorHandler extends ErrorHandler {
-  private val errors = Buffer.empty[SAXParseException]
-  private val fatalErrors = Buffer.empty[SAXParseException]
-  private val warnings = Buffer.empty[SAXParseException]
-
-  def getAll = this.getFatalErrors ++ this.getErrors ++ this.getWarnings
-  def getErrors: Seq[SAXParseException] = this.errors
-  def getFatalErrors: Seq[SAXParseException] = this.fatalErrors
-  def getWarnings: Seq[SAXParseException] = this.warnings
-
-  def error(e: SAXParseException) {
-    this.errors += e
-  }
-
-  def fatalError(e: SAXParseException) {
-    this.fatalErrors += e
-  }
-
-  def warning(e: SAXParseException) {
-    this.warnings += e
   }
 }
 

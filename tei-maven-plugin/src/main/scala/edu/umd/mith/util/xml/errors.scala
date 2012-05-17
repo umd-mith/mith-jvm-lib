@@ -49,12 +49,19 @@ case class Warning(
 
 case class SchematronError(
   uri: String, message: String, location: String
-) extends Error
+) extends XmlError
 
 class ValidationErrorHandler extends ErrorHandler {
   private val errors = Buffer.empty[XmlError]
+  private var failed = false
 
   def getErrors: Seq[XmlError] = this.errors
+  def start() { this.failed = false }
+  def lastFailed = this.failed
+
+  def addErrors(errors: Seq[XmlError]) {
+    this.errors ++= errors
+  }
 
   def error(e: SAXParseException) {
     this.errors += NonFatalError(
@@ -63,6 +70,7 @@ class ValidationErrorHandler extends ErrorHandler {
   }
 
   def fatalError(e: SAXParseException) {
+    this.failed = true
     this.errors += FatalError(
       e.getSystemId, e.getMessage, e.getLineNumber, e.getColumnNumber
     )

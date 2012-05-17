@@ -17,8 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package edu.umd.mith.util.schematron
+package edu.umd.mith.util.xml.schematron
 
+import edu.umd.mith.util.xml.SchematronError
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import javax.xml.transform.Templates
@@ -31,7 +32,9 @@ import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.sax.SAXTransformerFactory
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
-
+import org.xml.sax.Attributes
+import org.xml.sax.helpers.DefaultHandler
+import scala.collection.mutable.Buffer
 
 class SchematronValidator(
   private val source: Source,
@@ -86,8 +89,10 @@ class SchematronValidator(
     factory.newTemplates(new DOMSource(schema.getNode)).newTransformer
   }
 
-  def validate(source: Source, result: Result) {
-    this.transformer.transform(source, result)
+  def validate(source: Source): Seq[SchematronError] = {
+    val handler = new FailureHandler(source.getSystemId)
+    this.transformer.transform(source, new SAXResult(handler))
+    handler.errors
   }
 
   private val includeUri = this.getClass.getResource(
@@ -101,5 +106,59 @@ class SchematronValidator(
   private val svrlUri = this.getClass.getResource(
     "/com/schematron/stylesheets/iso_svrl_for_xslt2.xsl"
   ).toExternalForm
+
+  class FailureHandler(val uri: String) extends DefaultHandler {
+    sealed trait State {
+      def enterText: State = this
+      def processText(ch: Array[Char], start: Int, length: Int): Unit = ()
+      def getError: Option[SchematronError] = None
+    }
+
+    case object NotInFailure extends State
+
+    case class InFailure(location: String) extends State {
+      override def enterText = InFailureText(location)
+    }
+
+    case class InFailureText(location: String) extends State {
+      val buffer = new StringBuilder
+      override def processText(ch: Array[Char], start: Int, length: Int) {
+        this.buffer.appendAll(ch, start, length)
+      }
+
+      override def getError = Some(SchematronError(
+        FailureHandler.this.uri,
+        this.buffer.toString,
+        location
+      ))
+    }
+
+    var state: State = NotInFailure
+    var errors = Buffer.empty[SchematronError]
+
+    override def startElement(
+      uri: String, localName: String, qName: String, attributes: Attributes
+    ) {
+      if (uri == "http://purl.oclc.org/dsdl/svrl") {
+        if (localName == "failed-assert") {
+          this.state = InFailure(attributes.getValue("location"))
+        } else if (localName == "text") {
+          this.state = this.state.enterText
+        }
+      }
+    }
+
+    override def endElement(uri: String, localName: String, qName: String) {
+      if (uri == "http://purl.oclc.org/dsdl/svrl") {
+        if (localName == "failed-assert") {
+          this.errors ++= this.state.getError
+        }
+      }
+    }
+
+    override def characters(ch: Array[Char], start: Int, length: Int) {
+      this.state.processText(ch, start, length)
+    }
+  }
 }
 
