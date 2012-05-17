@@ -70,6 +70,22 @@ abstract class ValidateGoal extends TransformingGoal {
   }
 }
 
+sealed trait Error {
+  def uri: String
+  def message: String
+  def location: String
+}
+
+trait SaxError extends Error {
+  def line: Int
+  def column: Int
+  def location = "line %d; column %d".format(this.line, this.column)
+}
+
+case class FatalError(uri: String, message: String, line: Int, column: Int) extends SaxError
+case class NonFatalError(uri: String, message: String, line: Int, column: Int) extends SaxError
+case class Warning(uri: String, message: String, line: Int, column: Int) extends SaxError
+
 class ValidationErrorHandler extends ErrorHandler {
   private val errors = Buffer.empty[SAXParseException]
   private val fatalErrors = Buffer.empty[SAXParseException]
