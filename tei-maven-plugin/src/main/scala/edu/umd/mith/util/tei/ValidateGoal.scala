@@ -38,6 +38,9 @@ abstract class ValidateGoal extends TransformingGoal {
       "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory"
     )
 
+    import scala.collection.JavaConversions._
+    println(this.getProject.getPluginManagement.getPlugins.map(_.asInstanceOf[org.apache.maven.model.Plugin].getKey).mkString(","))
+
     this.getOddSpecs.foreach { spec =>
       Option(spec.getSource).map { source =>
         val base = this.removeExtension(source.getName)
