@@ -39,11 +39,6 @@
       <artifactId>sanselan</artifactId>
       <version>0.97-incubator</version>
     </dependency>
-    <!--<dependency>
-      <groupId>net.sourceforge.saxon</groupId>
-      <artifactId>saxon</artifactId>
-      <version>9.1.0.8</version>
-    </dependency>-->
     <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon</artifactId>
