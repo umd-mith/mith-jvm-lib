@@ -58,6 +58,7 @@
     <module>proto</module>
     <module>util</module>
     <module>mining</module>
+    <!--<module>cocoon-util</module>-->
     <module>tei-maven-plugin</module>
   </modules>
 
