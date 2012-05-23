@@ -24,10 +24,11 @@ import com.google.common.collect.MinMaxPriorityQueue
 import java.io.File
 import scala.collection.JavaConversions._
 import scala.collection.SortedMap
-import scala.collection.mutable.ArrayBuffer
 
-class MalletModel(val model: ParallelTopicModel, val delta: Double) {
+class TopicModel(val model: ParallelTopicModel, val delta: Double) {
+  def this(model: ParallelTopicModel) = this(model, 1.0)
   def this(file: File, delta: Double) = this(ParallelTopicModel.read(file), delta)
+  def this(file: File) = this(file, 1.0)
 
   val vocabulary = this.model.getAlphabet.toArray.map(_.asInstanceOf[String])
 
