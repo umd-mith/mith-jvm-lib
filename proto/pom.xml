@@ -30,6 +30,11 @@
       <version>${scala.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>12.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.mylyn.github</groupId>
       <artifactId>org.eclipse.egit.github.core</artifactId>
       <version>1.2.0</version>
