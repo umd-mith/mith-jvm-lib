@@ -19,7 +19,6 @@
  */
 package edu.umd.mith.util.mallet
 
-import cc.mallet.topics.ParallelTopicModel
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
@@ -33,14 +32,17 @@ class SpreadsheetConverter(file: File) {
   val maxWords = 1000
   val model = new TopicModel(file, 0.01)
 
-  def createSpreadsheet(out: File) {
-    val book = new SXSSFWorkbook(100)
+  def createBook = new SXSSFWorkbook(100)
+
+  def createDefaultSheets(book: Workbook) {
     this.createDTDSheet(book)
     this.createTWDSheet(book)
     this.createTTESheet(book)
     this.createDDESheet(book)
     this.createDTESheet(book)
+  }
 
+  def writeBook(book: Workbook, out: File) {
     val stream = new FileOutputStream(out)
     book.write(stream)
     stream.close()
@@ -52,7 +54,7 @@ class SpreadsheetConverter(file: File) {
     header.createCell(0).setCellValue("Document identifier")
     
     (0 until this.model.topics.size).foreach { i =>
-      header.createCell(i + 1).setCellValue("Topic " + i)
+      header.createCell(i + 1).setCellValue("topic-%02d".format(i))
     }
 
     this.model.documents.iterator.zipWithIndex.foreach {
@@ -74,8 +76,8 @@ class SpreadsheetConverter(file: File) {
       val formRow = formSheet.createRow(i)
       val probRow = probSheet.createRow(i)
 
-      formRow.createCell(0).setCellValue("Topic " + i)
-      probRow.createCell(0).setCellValue("Topic " + i)
+      formRow.createCell(0).setCellValue("topic-%02d".format(i))
+      probRow.createCell(0).setCellValue("topic-%02d".format(i))
 
       topic.toSeq.sortBy(-_._2.count).take(this.maxWords).zipWithIndex.foreach {
         case ((word, count), j) =>
@@ -105,6 +107,22 @@ class SpreadsheetConverter(file: File) {
     }
   }
 
+  def createDDESheet(book: Workbook, size: Int = 2048) {
+    val sheet = book.createSheet("Document-document edges")
+    val header = sheet.createRow(0)
+    header.createCell(0).setCellValue("First document ID")
+    header.createCell(1).setCellValue("Second document ID")
+    header.createCell(2).setCellValue("Symmetrized KL-divergence")
+
+    this.model.ddTable/*Fixed(size)*/.zipWithIndex.foreach {
+      case (((xi, yi), p), k) =>
+        val row = sheet.createRow(k + 1)
+        row.createCell(0).setCellValue(xi)
+        row.createCell(1).setCellValue(yi)
+        row.createCell(2).setCellValue(p)
+    }
+  }
+
   def createDTESheet(book: Workbook, threshhold: Double = 0.1) {
     val sheet = book.createSheet("Document-topic edges")
     val header = sheet.createRow(0)
@@ -124,26 +142,12 @@ class SpreadsheetConverter(file: File) {
         row.createCell(2).setCellValue(p)
     }
   }
-
-  def createDDESheet(book: Workbook, size: Int = 2048) {
-    val sheet = book.createSheet("Document-document edges")
-    val header = sheet.createRow(0)
-    header.createCell(0).setCellValue("First document ID")
-    header.createCell(1).setCellValue("Second document ID")
-    header.createCell(2).setCellValue("Symmetrized KL-divergence")
-
-    this.model.ddTableFixed(size).zipWithIndex.foreach {
-      case (((xi, yi), p), k) =>
-        val row = sheet.createRow(k + 1)
-        row.createCell(0).setCellValue(xi)
-        row.createCell(1).setCellValue(yi)
-        row.createCell(2).setCellValue(p)
-    }
-  }
 }
 
 object SpreadsheetConverter extends App {
   val converter = new SpreadsheetConverter(new File(args(0)))
-  converter.createSpreadsheet(new File(args(1)))
+  val book = converter.createBook
+  converter.createDefaultSheets(book)
+  converter.writeBook(book, new File(args(1)))
 }
 
