@@ -52,6 +52,16 @@
         <role>developer</role>
       </roles>
     </developer>
+    <developer>
+      <id>pevans</id>
+      <name>Paul Evans</name>
+      <email>decretist@gmail.com</email>
+      <organization>Maryland Institute for Technology in the Humanities</organization>
+      <organizationUrl>http://mith.umd.edu/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
   </developers>
 
   <modules>
