@@ -41,47 +41,31 @@ class MahoutPCAReducer(val corr: Boolean) extends PCAReducer {
 
   def this() = this(false)
 
-  def mToArray(m: Matrix) = Array.tabulate(m.rowSize, m.columnSize) { case (i, j) => m.getQuick(i, j) }
-  def vToArray(v: Vector) = Array.tabulate(v.size)(v.getQuick)
+  def mToArray(m: Matrix) = {
+    var i = m.rowSize
+    var j = m.columnSize
+    val a = new Array[Array[Double]](i)
 
-  def covarianceMatrix(data: Array[Array[Double]]) = {
-    val matrix = new DenseMatrix(data)
-    var sums = Array.ofDim[Double](matrix.columnSize)
-
-    /* First to subtract out the empirical mean. */
-    val rows = matrix.rowSize
-    for (i <- 0 until matrix.columnSize) {
-      val col = matrix.viewColumn(i)
-      val avg = col.zSum / rows
-      col.assign(Functions.minus(avg))
-      sums(i) = col.zSum
+    while (i > 0) {
+      i -= 1
+      j = m.columnSize
+      a(i) = new Array[Double](j)
+      while (j > 0) {
+        j -= 1
+        a(i)(j) = m.getQuick(i, j)
+      }
     }
-
-    /* Next the eigenvalue decomposition of the covariance matrix. */
-    val cov = matrix.like(matrix.columnSize, matrix.columnSize)
-    for {
-      i <- 0 until matrix.columnSize
-      j <- 0 to i
-    } {
-      val sumOfProducts = matrix.viewColumn(i).dot(matrix.viewColumn(j))
-      val c = (sumOfProducts - sums(i) * sums(j) / rows) / rows
-      cov.setQuick(i, j, c)
-      cov.setQuick(j, i, c)
+    a
+  }
+      
+  def vToArray(v: Vector) = {
+    var i = v.size
+    val a = new Array[Double](i)
+    while (i > 0) {
+      i -= 1
+      a(i) = v.getQuick(i)
     }
- 
-    if (this.corr)
-      for {
-        i <- 0 until matrix.columnSize
-        j <- 0 to i
-      } if (i == j) cov.setQuick(i, i, 1.0)
-        else {
-          val stdDev1 = math.sqrt(cov.getQuick(i, i))
-          val stdDev2 = math.sqrt(cov.getQuick(j, j))
-          val v = cov.getQuick(i, j) / (stdDev1 * stdDev2)
-          cov.setQuick(i, j, v)
-          cov.setQuick(j, i, v)
-        }
-    cov
+    a
   }
 
   def reduce(data: Array[Array[Double]], dims: Int): PCAReduced = {
@@ -149,8 +133,6 @@ class MahoutPCAReducer(val corr: Boolean) extends PCAReducer {
   }
 }
 
-
-
 class ColtPCAReducer(val corr: Boolean) extends PCAReducer {
   import cern.colt.matrix.impl.DenseDoubleMatrix2D
   import cern.colt.matrix.doublealgo.Statistic
@@ -161,22 +143,6 @@ class ColtPCAReducer(val corr: Boolean) extends PCAReducer {
   def this() = this(false)
 
   private val algebra = Algebra.DEFAULT
-
-  def covarianceMatrix(data: Array[Array[Double]]) = {
-    val matrix = new DenseDoubleMatrix2D(data)
-    /* First to subtract out the empirical mean. */
-    val rows = matrix.rows
-    for (i <- 0 until matrix.columns) {
-      val col = matrix.viewColumn(i)
-      val avg = col.zSum / rows
-      col.assign(Functions.minus(avg))
-    }
-    
-    /* Next the eigenvalue decomposition of the covariance matrix. */
-    val cov = Statistic.covariance(matrix)
-    if (this.corr) Statistic.correlation(cov)
-    cov
-  }
 
   def reduce(data: Array[Array[Double]], dims: Int): PCAReduced = {
     val matrix = new DenseDoubleMatrix2D(data)
