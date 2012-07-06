@@ -82,8 +82,8 @@ trait PCAExperiment extends Scope with DoubleSeqMatchers {
     _.drop(16).split("\\s+").drop(1).map(_.toDouble).toArray
   ).toArray
 
-  val covReducer = new PCAReducer(false)
-  val corReducer = new PCAReducer(true)
+  val covReducer = new ColtPCAReducer(false)
+  val corReducer = new ColtPCAReducer(true)
 
   val cov = this.covReducer.reduce(this.data)
   val cor = this.corReducer.reduce(this.data)
