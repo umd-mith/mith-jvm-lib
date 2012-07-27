@@ -31,7 +31,6 @@ class MetadataParser(val in: InputStream)
   type FieldMap = Map[String, Seq[String]]
   type Record = (String, FieldMap)
 
-  // Constructor with an empty attribute blacklist. 
   def this(path: String) = this(new FileInputStream(path))
 
   // This method reads consecutive text and entity events and concatenates

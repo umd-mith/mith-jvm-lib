@@ -19,7 +19,7 @@
  */
 package edu.umd.mith.util
 
-class DateCleaner {
+object DateCleaner {
   def parseYearField(value: String): Option[(Int, Option[Int])] = {
     val AbbrevYearRange = """.*(\d{4})\-(\d{2}).*""".r
     val YearRange = """.*(\d{4}).*(\d{4}).*""".r
