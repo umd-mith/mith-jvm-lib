@@ -114,7 +114,7 @@ class SpreadsheetConverter(file: File) {
     header.createCell(1).setCellValue("Second document ID")
     header.createCell(2).setCellValue("Symmetrized KL-divergence")
 
-    this.model.ddTable/*Fixed(size)*/.zipWithIndex.foreach {
+    this.model.ddTableFixed(size).zipWithIndex.foreach {
       case (((xi, yi), p), k) =>
         val row = sheet.createRow(k + 1)
         row.createCell(0).setCellValue(xi)
