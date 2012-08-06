@@ -94,7 +94,7 @@ class Pairtree(
   }
 
   private def concat(paths: String*): String = if (paths.isEmpty) null else
-    paths.map(
+    paths.filterNot(_ == null).map(
       path => if (path.last == this.separator) path.init else path
     ).mkString(this.separator.toString)
 
@@ -149,7 +149,7 @@ class Pairtree(
       id.charAt(c) match {
         case '=' => buffer.append('/')
         case '+' => buffer.append(':')
-        case ',' => buffer.append(',')
+        case ',' => buffer.append('.')
         case '^' => {
           val chars = Character.toChars(Integer.parseInt(id.substring(c + 1, c + 3), 16))
           assert(chars.length == 1)

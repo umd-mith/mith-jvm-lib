@@ -91,12 +91,15 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.0-beta-3</version>
+        <version>1.2</version>
         <configuration>
           <licenseName>apache_v2</licenseName>
           <extraExtensions>
             <scala>java</scala>
           </extraExtensions>
+          <excludes>
+            <exclude>**/gov/loc/repository/**</exclude>
+          </excludes>
         </configuration>
         <executions>
           <execution>
