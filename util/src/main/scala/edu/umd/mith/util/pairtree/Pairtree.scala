@@ -19,10 +19,6 @@
  */
 package edu.umd.mith.util.pairtree
 
-import java.io.File
-import java.io.UnsupportedEncodingException
-import java.text.MessageFormat
-
 import scala.reflect.BeanProperty
 
 object Pairtree {
@@ -33,7 +29,7 @@ class Pairtree(
   @BeanProperty var separator: Char,
   @BeanProperty var shortyLength: Int
 ) {
-  def this() = this(File.separatorChar, 2)
+  def this() = this(java.io.File.separatorChar, 2)
 
   def mapToPPath(id: String): String = {
     require(id != null)
@@ -64,32 +60,29 @@ class Pairtree(
     //If there is only 1 part
     if (ppathParts.length == 1) {
       //If part <= shorty length then no encapsulating dir
-      if (ppathParts(0).length <= this.shortyLength) {
-        null
-      }
+      if (ppathParts(0).length <= this.shortyLength) null
       //Else no ppath
-      else {
-        throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) contains no shorties", ppath))
-      }
+      else
+        throw new InvalidPpathException("Ppath (%s) contains no shorties" format ppath)
     } else {
       //All parts up to next to last and last should have shorty length
       ppathParts.take(ppathParts.size - 2).find(_.size != this.shortyLength).foreach {
         _ => throw new InvalidPpathException(
-          MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath)
+          "Ppath (%s) has parts of incorrect length" format ppath
         )
       }
 
       val nextToLastPart = ppathParts(ppathParts.length - 2)
       val lastPart = ppathParts(ppathParts.length - 1)
       //Next to last should have shorty length or less
-      if (nextToLastPart.length > this.shortyLength) {
-        throw new InvalidPpathException(MessageFormat.format("Ppath ({0}) has parts of incorrect length", ppath))
-      }
+      if (nextToLastPart.length > this.shortyLength)
+        throw new InvalidPpathException("Ppath (%s) has parts of incorrect length" format ppath)
+
       //If next to last has shorty length
-      if (nextToLastPart.length == this.shortyLength) {
+      if (nextToLastPart.length == this.shortyLength)
         //If last has length > shorty length then encapsulating dir
         if (lastPart.length > this.shortyLength) lastPart else null
-      } else lastPart
+      else lastPart
     }      
   }
 
@@ -115,7 +108,7 @@ class Pairtree(
     require(id != null)
     //First pass
     val bytes = try id.getBytes("utf-8") catch {
-      case e: UnsupportedEncodingException => 
+      case e: java.io.UnsupportedEncodingException => 
         throw new RuntimeException("Error getting UTF-8 for path", e)
     }
 

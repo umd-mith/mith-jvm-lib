@@ -19,29 +19,43 @@
  */
 package edu.umd.mith.util
 
-object DateCleaner {
-  def parseYearField(value: String): Option[(Int, Option[Int])] = {
-    val AbbrevYearRange = """.*(\d{4})\-(\d{2}).*""".r
-    val YearRange = """.*(\d{4}).*(\d{4}).*""".r
-    val Year = """.*(\d{4}).*""".r
-    val Decade = """.*(\d{3})\-.*""".r
-    val Century = """.*(\d{2})\-.*""".r
-    value.replaceAll("""[\.\[\], ]""", "") match {
-      case AbbrevYearRange(start, end) =>
-        Some((start.toInt, Some((start.substring(0, 2) + end).toInt)))
-      case YearRange(start, end) => Some((start.toInt, Some(end.toInt)))
-      case Year(start) => Some((start.toInt, None))
-      case Decade(known) => {
-        val decade = known.toInt
-        Some((decade * 10, Some(decade * 10 + 9)))
-      }
-      case Century(known) => {
-        val century = known.toInt
-        Some((century * 100, Some(century * 100 + 99)))
-      }
-      case RomanNumeral(start) => Some((start, None))
-      case _ => None 
+trait YearValue {
+  def start: Int
+  def end: Int = this.start
+}
+
+case class Year(start: Int) extends YearValue
+case class YearRange(start: Int, override val end: Int) extends YearValue
+
+trait DateCleaner {
+  def parseYearField(s: String): Option[YearValue]
+}
+
+object SimpleDateCleaner extends DateCleaner {
+  private[this] val abbrevYearRange = """[^\\d]*c?(\d{4})\-c?(\d{2})[^\\d]*""".r
+  private[this] val yearRange = """[\\d]*c?(\d{4})[\\d]*(\d{4})[^\\d]*""".r
+  private[this] val year = """[\\d]*c?(\d{4})[\\d]*""".r
+  private[this] val decade = """[\\d]*c?(\d{3})\-[\\d]*""".r
+  private[this] val century = """[\\d]*c?(\d{2})\-[\\d]*""".r
+
+  private[this] val parse: PartialFunction[String, YearValue] = {
+    case abbrevYearRange(start, end) => YearRange(
+      start.toInt, (start.substring(0, 2) + end).toInt
+    )
+    case yearRange(start, end) => YearRange(start.toInt, end.toInt)
+    case year(start) => Year(start.toInt)
+    case decade(known) => {
+      val decade = known.toInt * 10
+      YearRange(decade, decade + 9)
     }
+    case century(known) => {
+      val century = known.toInt * 100
+      YearRange(century, century + 99)
+    }
+    case RomanNumeral(start) => Year(start)
   }
+
+  def parseYearField(s: String) =
+    this.parse.lift(s.replaceAll("""[\.\[\], <>]""", ""))
 }
 

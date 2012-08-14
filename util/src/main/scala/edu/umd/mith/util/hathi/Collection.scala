@@ -106,7 +106,7 @@ class Collection(private val base: String) {
  */
 object MalletConverter {
   def main(args: Array[String]) {
-    import edu.umd.mith.util.DateCleaner.parseYearField
+    import edu.umd.mith.util.SimpleDateCleaner.parseYearField
 
     val metadata = new MetadataParser(args(0))
     val collection = new Collection(args(1))
@@ -117,7 +117,7 @@ object MalletConverter {
         fields.get("date").flatMap(
           _.headOption.flatMap(parseYearField(_))
         ).flatMap {
-          case (year, _) if year >= 1800 && year < 1900 =>
+          case year if year.start >= 1800 && year.end < 1900 =>
             println(id)
             collection.malletFormat(id)
           case _ => None

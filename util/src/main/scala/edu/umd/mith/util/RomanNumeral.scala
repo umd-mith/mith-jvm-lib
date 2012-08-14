@@ -28,9 +28,10 @@ object RomanNumeral {
 
   def unapply(s: String): Option[Int] = s.toUpperCase match {
     case "" => Some(0)
-    case s => numerals.filter { case (n, _) => s.startsWith(n) } match {
-      case (n, i) :: _ => RomanNumeral.unapply(s.substring(n.size)).map(_ + i)
-      case Nil => None
+    case s => this.numerals.find {
+      case (n, _) => s.startsWith(n)
+    } flatMap {
+      case (n, i) => RomanNumeral.unapply(s.substring(n.size)).map(_ + i)
     }
   }
 }
