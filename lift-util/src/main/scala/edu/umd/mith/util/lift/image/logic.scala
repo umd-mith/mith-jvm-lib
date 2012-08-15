@@ -35,8 +35,8 @@ class ImageCache(path: List[String]) {
     rw: Int,
     rh: Option[Int],
     selection: Option[((Int, Int), (Int, Int))]
-  ) = {
-    val selectionItem = Box.option2Box(selection).flatMap {
+  ): Box[DerivativeImage] = {
+    val selectionItem: Box[ImageSelection] = Box.option2Box(selection).flatMap {
       case ((x, y), (w, h)) => ImageSelection.find(
         By(ImageSelection.x, x),
         By(ImageSelection.y, y),
@@ -51,7 +51,7 @@ class ImageCache(path: List[String]) {
       By(DerivativeImage.rw, rw)
     ) ++ rh.map(By(DerivativeImage.rh, _))
 
-    val image = DerivativeImage.find(qs: _*).orElse {
+    DerivativeImage.find(qs: _*).orElse {
       import javax.imageio.ImageIO
       import org.imgscalr.Scalr
 
@@ -72,7 +72,27 @@ class ImageCache(path: List[String]) {
         ImageIO.write(bir, "png", out)
         val bytes = out.toByteArray
 
-        Failure("error")
+        val newSelectionItem: Box[ImageSelection] = selectionItem.orElse {
+          Box.option2Box(selection).map {
+            case ((x, y), (w, h)) =>
+              val sel = ImageSelection.create.x(x).y(y).w(w).h(h)
+              if (!sel.save()) {
+                //return Failure("Could not create image selection.")
+              }
+              sel
+          }
+        }
+
+        val derivative = DerivativeImage.create
+          .source(source)
+          .selection(newSelectionItem)
+          .rw(bir.getWidth)
+          .rh(bir.getHeight)
+
+        if (!derivative.save())
+          Failure("Could not create image derivative.")
+        else
+          Full(derivative)
       } catch {
         case exIo: java.io.IOException =>
           new Failure("Cannot access source image.", Full(exIo), Empty)
