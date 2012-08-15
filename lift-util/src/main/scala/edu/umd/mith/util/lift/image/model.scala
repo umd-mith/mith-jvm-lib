@@ -26,7 +26,7 @@ class SourceImage extends LongKeyedMapper[SourceImage]
   def getSingleton = SourceImage
 
   object url extends MappedString(this, 512)
-  object name extends MappedUniqueId(this, 40)
+  object name extends MappedString(this, 40)
   object w extends MappedInt(this)
   object h extends MappedInt(this)
 

@@ -20,7 +20,13 @@
 package edu.umd.mith.util.lift.image
 
 import net.liftweb.common.{ Box, Empty, Failure, Full }
-import net.liftweb.http.{ Req, GetRequest, LiftResponse, LiftRules }
+import net.liftweb.http.{
+  GetRequest,
+  InMemoryResponse,
+  LiftResponse,
+  LiftRules,
+  Req
+}
 import net.liftweb.mapper.{ By }
 import org.imgscalr.Scalr._
 
@@ -31,7 +37,7 @@ class ImageCache(path: List[String]) {
   }
 
   def image(
-  source: SourceImage,
+    source: SourceImage,
     rw: Int,
     rh: Option[Int],
     selection: Option[((Int, Int), (Int, Int))]
@@ -77,7 +83,7 @@ class ImageCache(path: List[String]) {
             case ((x, y), (w, h)) =>
               val sel = ImageSelection.create.x(x).y(y).w(w).h(h)
               if (!sel.save()) {
-                //return Failure("Could not create image selection.")
+                return Failure("Could not create image selection.")
               }
               sel
           }
@@ -88,6 +94,7 @@ class ImageCache(path: List[String]) {
           .selection(newSelectionItem)
           .rw(bir.getWidth)
           .rh(bir.getHeight)
+          .content(bytes)
 
         if (!derivative.save())
           Failure("Could not create image derivative.")
@@ -106,17 +113,67 @@ class ImageCache(path: List[String]) {
     } 
   }
 
+  def parseInt(s: String) = try Some(s.toInt) catch {
+    case _: NumberFormatException => None
+  }
+
+  def md5(s: String) = new java.math.BigInteger(
+    1, java.security.MessageDigest.getInstance("MD5").digest(s.getBytes)
+  ).toString(16)
+
   def serve(name: Option[String], params: Map[String, List[String]]):
     Box[LiftResponse] = {
-    val url = params.get("url").lastOption
-    val x = params.get("x").lastOption
-    val y = params.get("y").lastOption
-    val w = params.get("w").lastOption
-    val h = params.get("h").lastOption
-    val scala = params.get("scale").lastOption
+    val url = params.get("url").flatMap(_.lastOption)
+    val x = params.get("x").flatMap(_.lastOption).flatMap(parseInt)
+    val y = params.get("y").flatMap(_.lastOption).flatMap(parseInt)
+    val w = params.get("w").flatMap(_.lastOption).flatMap(parseInt)
+    val h = params.get("h").flatMap(_.lastOption).flatMap(parseInt)
 
-    val qs = (name ++ url).toSeq
-    null
+    val selection = for {
+      xv <- x
+      yv <- y
+      wv <- w
+      hv <- h
+    } yield ((xv, yv), (wv, hv))
+
+    val rw = params.get("rw").flatMap(_.lastOption).map(parseInt)
+    val rh = params.get("rh").flatMap(_.lastOption).map(parseInt)
+
+    val qs = (
+      name.map(v => By(SourceImage.name, v)) ++ 
+      url.map(v => By(SourceImage.url, v))
+    ).toSeq
+
+    if (qs.isEmpty)
+      Failure("No image specified.")
+    else {
+      val source = SourceImage.find(qs: _*).orElse {
+        Box.option2Box(url).map { u =>
+          val newSource = SourceImage.create.url(u).name(
+            name.getOrElse(md5(u))
+          )
+
+          if (newSource.save)
+            Full(newSource)
+          else
+            Failure("Could not create source image.")
+        }.getOrElse {
+          Failure("No URL specified.")
+        }
+      }
+
+      source.flatMap(this.image(_, rw.get, rh, selection)).map { derivative =>
+        InMemoryResponse(
+          derivative.content.is,
+          List(
+            "Content-Type" -> "image/png",
+            "Content-Length" -> derivative.content.is.length.toString
+          ),
+          Nil,
+          200
+        )
+      }
+    }
   }
 }
 
