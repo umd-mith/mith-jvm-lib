@@ -29,7 +29,7 @@ Next add the following to the plugins section:
     <plugin>
       <groupId>edu.umd.mith</groupId>
       <artifactId>tei-maven-plugin</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>0.1.0-SNAPSHOT</version>
       <executions>
         <execution>
           <goals>
