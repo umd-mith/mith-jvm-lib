@@ -21,6 +21,43 @@ package edu.umd.mith.metadata
 
 import org.scardf._
 
+object DCTypes extends Vocabulary(
+  "http://purl.org/dc/dcmitype/"
+) {
+  val Collection = DCTypes\"Collection"
+  val Dataset = DCTypes\"Dataset"
+  val Event = DCTypes\"Event"
+  val Image = DCTypes\"Image"
+  val InteractiveResource = DCTypes\"InteractiveResource"
+  val MovingImage = DCTypes\"MovingImage"
+  val PhysicalObject = DCTypes\"PhysicalObject"
+  val Service = DCTypes\"Service"
+  val Software = DCTypes\"Software"
+  val Sound = DCTypes\"Sound"
+  val StillImage = DCTypes\"StillImage"
+  val Text = DCTypes\"Text"
+}
+
+object DC11 extends Vocabulary(
+  "http://purl.org/dc/elements/1.1/"
+) {
+  val contributor = prop("contributor")
+  val coverage = prop("coverage")
+  val creator = prop("creator")
+  val date = prop("date")
+  val description = prop("description")
+  val format = prop("format")
+  val identifier = prop("identifier")
+  val language = prop("language")
+  val publisher = prop("publisher")
+  val relation = prop("relation")
+  val rights = prop("rights")
+  val source = prop("source")
+  val subject = prop("subject")
+  val title = prop("title")
+  val `type` = prop("type")
+}
+
 object ORE extends Vocabulary(
   "http://www.openarchives.org/ore/terms/"
 ) {
